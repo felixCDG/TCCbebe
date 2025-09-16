@@ -7,14 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -30,6 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
+import androidx.navigation.Navigator
 import com.example.tccbebe.R
 
 fun CurvedTopShape() = GenericShape { size, _ ->
@@ -52,7 +58,7 @@ fun CurvedTopShape() = GenericShape { size, _ ->
 }
 
 @Composable
-fun Bemvindo(modifier: Modifier = Modifier) {
+fun Bemvindo(navegacao: NavHostController?) {
 
     Box(
         modifier = Modifier
@@ -70,7 +76,7 @@ fun Bemvindo(modifier: Modifier = Modifier) {
                 painter = painterResource(R.drawable.logoremovedor),
                 contentDescription = "",
                 modifier = Modifier
-                    .size(180.dp),
+                    .size(220.dp),
 
             )
         }
@@ -128,12 +134,10 @@ fun Bemvindo(modifier: Modifier = Modifier) {
                            fontSize = 36.sp
                        )
                        Row (
-                           modifier = Modifier
-                               .fillMaxSize()
+
                        ){
                            Column (
-                               modifier = Modifier
-                                   .fillMaxSize()
+
                            ){
                                Spacer(modifier = Modifier .height(16.dp))
                                Icon(
@@ -157,15 +161,64 @@ fun Bemvindo(modifier: Modifier = Modifier) {
                                )
                            }
                            Column (
-                               modifier = Modifier
-                                   .fillMaxSize()
+
                            ) {
+                               Spacer(modifier = Modifier .height(19.dp))
                                Text(
-                                   text = "Cuidar de um bebe pode ser desafiador!",
+                                   text = "Chat Integrado",
                                    color = Color.Black,
                                    fontWeight = FontWeight.Bold,
-                                   fontSize = 17.sp
+                                   fontSize = 16.sp
                                )
+                               Spacer(modifier = Modifier .height(22.dp))
+                               Text(
+                                   text = "Dicas sobre cuidados",
+                                   color = Color.Black,
+                                   fontWeight = FontWeight.Bold,
+                                   fontSize = 15.sp
+                               )
+                               Spacer(modifier = Modifier .height(21.dp))
+                               Text(
+                                   text = "Acesso à IA especializada",
+                                   color = Color.Black,
+                                   fontWeight = FontWeight.Bold,
+                                   fontSize = 15.sp
+                               )
+                               Spacer(modifier = Modifier .height(23.dp))
+                               Text(
+                                   text = "Consultas online com médicos",
+                                   color = Color.Black,
+                                   fontWeight = FontWeight.Bold,
+                                   fontSize = 14.sp
+                               )
+
+                           }
+                           Column (
+                               horizontalAlignment = Alignment.End,
+                               verticalArrangement = Arrangement.Center
+                           ){
+                               Image(
+                                   painter = painterResource(R.drawable.celular),
+                                   contentDescription = "",
+                                   modifier = Modifier
+                                       .padding(bottom = 50.dp)
+                                       .size(147.dp)
+                               )
+                               Button(
+                                   onClick = {
+                                       navegacao?.navigate("criarconta")
+                                   },
+                                   colors = ButtonDefaults.buttonColors(Color(0xfffffffff)),
+                                   modifier = Modifier
+                                       .width(120.dp)
+                               ) {
+                                   Text(
+                                       text = "Próximo",
+                                       color = Color.Black,
+                                       fontWeight = FontWeight.Bold,
+                                       fontSize = 16.sp
+                                   )
+                               }
                            }
                        }
                    }
@@ -179,5 +232,5 @@ fun Bemvindo(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun BemvindoPreview() {
-    Bemvindo()
+    Bemvindo(navegacao = null )
 }

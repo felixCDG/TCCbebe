@@ -1,0 +1,177 @@
+package com.example.tccbebe.screens
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.tccbebe.R
+
+@Composable
+fun Cadastroscreen(navegacao: NavHostController?) {
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFAEDCFF))) {
+
+        Column (
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Image(
+                painter = painterResource(R.drawable.logoremovedor),
+                contentDescription = "",
+                modifier = Modifier
+                    .size(280.dp),
+
+                )
+        }
+        Column (
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(570.dp),
+                shape = CurvedTopShape(),// aplica o shape
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFFFFFF)
+                )
+            ) {
+                Column (
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxSize(),
+                ){
+                    Text(modifier = Modifier .padding(top = 120.dp),
+                        text = "LOGIN",
+                        color = Color.Black,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 44.sp
+                    )
+                    Spacer(modifier = Modifier .height(24.dp))
+                    Text(
+                        text = "Email",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 20.sp,
+                        color = Color.Black
+                    )
+                    Spacer( modifier = Modifier .height(5.dp))
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 2.dp, // 👈 tamanho da borda
+                                color = Color(0xFF2C91DE),
+                                shape = RoundedCornerShape(30.dp)
+                            ),
+                        shape = RoundedCornerShape(30.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0x65AEDCFF),
+                            unfocusedContainerColor = Color(0x65AEDCFF)
+                        ),
+                    )
+                    Spacer(modifier = Modifier .height(24.dp))
+                    Text(
+                        text = "Senha",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 20.sp,
+                        color = Color.Black
+                    )
+                    Spacer( modifier = Modifier .height(5.dp))
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 2.dp, // 👈 tamanho da borda
+                                color = Color(0xFF2C91DE),
+                                shape = RoundedCornerShape(30.dp)
+                            ),
+                        shape = RoundedCornerShape(30.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0x65AEDCFF),
+                            unfocusedContainerColor = Color(0x65AEDCFF)
+                        ),
+                    )
+                    Spacer( modifier = Modifier .height(34.dp))
+                    Column (
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Button(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
+                            shape = RoundedCornerShape(30.dp),
+                            modifier = Modifier
+                                .width(270.dp)
+                                .border(
+                                    width = 2.dp, // 👈 tamanho da borda
+                                    color = Color(0xFF2C91DE),
+                                    shape = RoundedCornerShape(38.dp)
+                                ),
+                        ) {
+                            Text(
+                                text = "ENTRAR",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        }
+                        Spacer( modifier = Modifier .height(3.dp))
+                        Text(
+                            text = "Não tem conta? Criar conta",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+
+}
+
+@Preview
+@Composable
+private fun CadastroscreenPreview() {
+    Cadastroscreen(navegacao = null)
+}

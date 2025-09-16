@@ -11,6 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.tccbebe.screens.Bemvindo
+import com.example.tccbebe.screens.CriarConta
+import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.ui.theme.TCCBEBETheme
 
 class MainActivity : ComponentActivity() {
@@ -18,14 +24,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TCCBEBETheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+
+            val navegacao = rememberNavController()
+            NavHost(
+                navController = navegacao,
+                startDestination = "bemvindo"
+            ){
+               composable(route = "bemvindo"){ Bemvindo(navegacao) }
+               composable(route = "criarconta"){ CriarConta(navegacao) }
+               composable(route = "login"){ Loginscreen(navegacao) }
             }
+
         }
     }
 }
