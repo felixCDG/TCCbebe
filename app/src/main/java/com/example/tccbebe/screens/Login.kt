@@ -146,7 +146,9 @@ fun Loginscreen(navegacao: NavHostController?) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
                         Button(
-                            onClick = {},
+                            onClick = {
+                                navegacao?.navigate("cadastroR")
+                            },
                             colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier

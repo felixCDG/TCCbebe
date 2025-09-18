@@ -271,7 +271,9 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Button(
-                                onClick = {},
+                                onClick = {
+                                    navegacao?.navigate("cadastroB")
+                                },
                                 colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                                 shape = RoundedCornerShape(30.dp),
                                 modifier = Modifier

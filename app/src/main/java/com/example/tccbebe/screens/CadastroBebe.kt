@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
@@ -29,11 +30,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,8 +51,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.tccbebe.R
 
+
 @Composable
 fun CadastroBebe(navegacao: NavHostController?) {
+
+    val expandedMenu = remember { mutableStateOf(false) }
+    val selectedOption = remember { mutableStateOf("") }
+
+    val expandedSangue = remember { mutableStateOf(false) }
+    val selectSangue = remember { mutableStateOf("") }
 
 
     Box(modifier = Modifier
@@ -175,14 +187,43 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedTextField(
-                                value = "",
+                                value = selectedOption.value,
                                 onValueChange = {},
+                                readOnly = true,
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(56.dp),
                                 shape = RoundedCornerShape(30.dp),
+                                trailingIcon = {
+                                    IconButton(onClick = { expandedMenu.value = !expandedMenu.value }) {
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowDropDown,
+                                            contentDescription = "Abrir menu"
+                                        )
+                                    }
+                                },
                                 placeholder = { Text("Selecione") }
                             )
+                            DropdownMenu(
+                                expanded = expandedMenu.value,
+                                onDismissRequest = { expandedMenu.value = false },
+                                modifier = Modifier.background(Color(0xFFFFFFFF))
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Masculino") },
+                                    onClick = {
+                                        selectedOption.value = "Masculino"
+                                        expandedMenu.value = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Feminino") },
+                                    onClick = {
+                                        selectedOption.value = "Feminino"
+                                        expandedMenu.value = false
+                                    }
+                                )
+                            }
 
                             OutlinedTextField(
                                 value = "",
@@ -288,16 +329,86 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
+                            value = selectSangue.value,
                             onValueChange = {},
+                            readOnly = true,
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-
+                            trailingIcon = {
+                                IconButton(onClick = { expandedSangue.value = !expandedMenu.value }) {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = "Abrir menu"
+                                    )
+                                }
+                            },
                             placeholder = {
                                 Text("Selecione")
                             },
                         )
+                        DropdownMenu(
+                            expanded = expandedSangue.value,
+                            onDismissRequest = { expandedSangue.value = false },
+                            modifier = Modifier.background(Color(0xFFFFFFFF))
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("A+") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: A+"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("A-") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: A-"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("B+") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: B+"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("B-") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: B-"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("AB+") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: AB+"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("AB-") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: AB-"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("O+") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: O+"
+                                    expandedSangue.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("O-") },
+                                onClick = {
+                                    selectSangue.value = "Tipo sanguinio: O-"
+                                    expandedSangue.value = false
+                                }
+                            )
+                        }
                         Spacer(modifier = Modifier.height(20.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
