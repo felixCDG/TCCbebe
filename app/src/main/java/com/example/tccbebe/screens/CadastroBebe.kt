@@ -573,6 +573,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                                 shape = RoundedCornerShape(30.dp),
                                 modifier = Modifier
+                                    .padding(bottom = 70.dp)
                                     .width(270.dp)
                                     .border(
                                         width = 2.dp, // 👈 tamanho da borda

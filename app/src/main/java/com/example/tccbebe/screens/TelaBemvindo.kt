@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -37,6 +40,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
 import com.example.tccbebe.R
+import com.example.tccbebe.ui.theme.TCCBEBETheme
 
 fun CurvedTopShape() = GenericShape { size, _ ->
     moveTo(0f, size.height) // canto inferior esquerdo
@@ -63,7 +67,8 @@ fun Bemvindo(navegacao: NavHostController?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xfffffffff))
+            .background(color = Color(0xFFFFFFFF))
+            //.windowInsetsPadding(WindowInsets.systemBars)
     ) {
         Column(
             modifier = Modifier
@@ -76,6 +81,7 @@ fun Bemvindo(navegacao: NavHostController?) {
                 painter = painterResource(R.drawable.logoremovedor),
                 contentDescription = "",
                 modifier = Modifier
+                    .padding(22.dp)
                     .size(220.dp),
 
             )
@@ -201,7 +207,7 @@ fun Bemvindo(navegacao: NavHostController?) {
                                    painter = painterResource(R.drawable.celular),
                                    contentDescription = "",
                                    modifier = Modifier
-                                       .padding(bottom = 50.dp)
+                                       .padding(bottom = 0.dp)
                                        .size(147.dp)
                                )
                                Button(
@@ -229,8 +235,18 @@ fun Bemvindo(navegacao: NavHostController?) {
 
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun BemvindoPreview() {
-    Bemvindo(navegacao = null )
+    TCCBEBETheme {
+        // Box só para simular a barra de navegação
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 48.dp) // simula espaço da barra de navegação
+        ) {
+            Bemvindo(navegacao = null)
+        }
+    }
 }
+

@@ -44,15 +44,7 @@ import com.example.tccbebe.R
 @Composable
 fun Loginscreen(navegacao: NavHostController?) {
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(R.drawable.fundoback),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().graphicsLayer {
-                rotationZ = 180f // gira 180 graus, deixando de ponta cabeça
-            }
-        )
+    Box(modifier = Modifier.fillMaxSize().background(color = Color(0xFFAEDCFF))) {
         Column (
             modifier = Modifier
                 .fillMaxSize(),
