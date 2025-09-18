@@ -15,6 +15,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tccbebe.screens.Bemvindo
+import com.example.tccbebe.screens.CadastroResponsavel
+import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.CriarConta
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.ui.theme.TCCBEBETheme
@@ -33,6 +35,8 @@ class MainActivity : ComponentActivity() {
                composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
                composable(route = "login"){ Loginscreen(navegacao) }
+               composable(route = "cadastro"){ Cadastroscreen(navegacao) }
+               composable(route = "cadastroR"){ CadastroResponsavel(navegacao) }
             }
 
         }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,7 +32,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -162,11 +165,26 @@ fun Loginscreen(navegacao: NavHostController?) {
                             )
                         }
                         Spacer( modifier = Modifier .height(3.dp))
-                        Text(
-                            text = "Não tem conta? Criar conta",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
+                        val textoClique = buildAnnotatedString {
+                            append("Não tem conta ?")
+
+                            // Parte clicável: "Cadastre-se"
+                            pushStringAnnotation(tag = "Cadastre-se", annotation = "Cadastre-se")
+                            withStyle(style = androidx.compose.ui.text.SpanStyle(color = Color.Black)) {
+                                append("Cadastre-se")
+                            }
+                            pop()
+                        }
+
+                        ClickableText(
+                            text = textoClique,
+                            modifier = Modifier.padding(horizontal = 37.dp),
+                            onClick = { offset ->
+                                textoClique.getStringAnnotations(tag = "Cadastre-se", start = offset, end = offset)
+                                    .firstOrNull()?.let {
+                                        navegacao?.navigate("cadastro")
+                                    }
+                            }
                         )
                     }
                 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -28,7 +38,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,7 +63,7 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                 painter = painterResource(R.drawable.logoremovedor),
                 contentDescription = "",
                 modifier = Modifier
-                    .size(280.dp),
+                    .size(200.dp),
 
                 )
         }
@@ -63,7 +75,7 @@ fun Cadastroscreen(navegacao: NavHostController?) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(570.dp),
+                    .height(715.dp),
                 shape = CurvedTopShape(),// aplica o shape
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFFFFFFF)
@@ -74,56 +86,121 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                         .padding(20.dp)
                         .fillMaxSize(),
                 ){
-                    Text(modifier = Modifier .padding(top = 120.dp),
-                        text = "LOGIN",
+                    Row (modifier = Modifier .fillMaxWidth() .padding(20.dp) .padding(top = 50.dp)){
+                        IconButton(
+                            onClick = {
+                                navegacao?.navigate("login")
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = ""
+                            )
+                        }
+                        Spacer(modifier = Modifier ,)
+                        Text(
+                            modifier = Modifier
+                                .padding(top = 12.dp),
+                            text = "Volte para o login",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+                    Text(
+                        text = "Cadastre-se",
                         color = Color.Black,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 44.sp
                     )
                     Spacer(modifier = Modifier .height(24.dp))
-                    Text(
-                        text = "Email",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
-                    Spacer( modifier = Modifier .height(5.dp))
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = 2.dp, // 👈 tamanho da borda
-                                color = Color(0xFF2C91DE),
-                                shape = RoundedCornerShape(30.dp)
-                            ),
+                            .fillMaxWidth(),
                         shape = RoundedCornerShape(30.dp),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Email,
+                                contentDescription = "Email"
+                            )
+                        },
+                        label = {
+                            Text("Email")
+                        },
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF2C91DE),
+                            unfocusedBorderColor = Color(0xFF2C91DE),
                             focusedContainerColor = Color(0x65AEDCFF),
                             unfocusedContainerColor = Color(0x65AEDCFF)
                         ),
                     )
                     Spacer(modifier = Modifier .height(24.dp))
-                    Text(
-                        text = "Senha",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
-                    Spacer( modifier = Modifier .height(5.dp))
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = 2.dp, // 👈 tamanho da borda
-                                color = Color(0xFF2C91DE),
-                                shape = RoundedCornerShape(30.dp)
-                            ),
+                            .fillMaxWidth(),
                         shape = RoundedCornerShape(30.dp),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = "Senha"
+                            )
+                        },
+                        label = {
+                            Text("Senha")
+                        },
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF2C91DE),
+                            unfocusedBorderColor = Color(0xFF2C91DE),
+                            focusedContainerColor = Color(0x65AEDCFF),
+                            unfocusedContainerColor = Color(0x65AEDCFF)
+                        ),
+                    )
+                    Spacer(modifier = Modifier .height(24.dp))
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(30.dp),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = "Confirma senha"
+                            )
+                        },
+                        label = {
+                            Text("Comfirma senha")
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF2C91DE),
+                            unfocusedBorderColor = Color(0xFF2C91DE),
+                            focusedContainerColor = Color(0x65AEDCFF),
+                            unfocusedContainerColor = Color(0x65AEDCFF)
+                        ),
+                    )
+                    Spacer(modifier = Modifier .height(24.dp))
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(30.dp),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = "Telefone"
+                            )
+                        },
+                        label = {
+                            Text("Telefone")
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF2C91DE),
+                            unfocusedBorderColor = Color(0xFF2C91DE),
                             focusedContainerColor = Color(0x65AEDCFF),
                             unfocusedContainerColor = Color(0x65AEDCFF)
                         ),
@@ -147,19 +224,14 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                                 ),
                         ) {
                             Text(
-                                text = "ENTRAR",
+                                text = "CADASTRAR",
                                 color = Color.Black,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
                         }
                         Spacer( modifier = Modifier .height(3.dp))
-                        Text(
-                            text = "Não tem conta? Criar conta",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
-                        )
+
                     }
                 }
             }

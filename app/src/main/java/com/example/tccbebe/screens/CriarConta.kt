@@ -102,7 +102,9 @@ fun CriarConta(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier .height(42.dp))
                         Button(
-                            onClick = {},
+                            onClick = {
+                                navegacao?.navigate("cadastro")
+                            },
                             modifier = Modifier
                                 .width(260.dp)
                                 .border(border = BorderStroke(1.dp, color = Color(0xFF000000)), shape = RoundedCornerShape(16.dp)),
@@ -119,7 +121,9 @@ fun CriarConta(navegacao: NavHostController?) {
                         }
                         Spacer(modifier = Modifier .height(32.dp))
                         Button(
-                            onClick = {},
+                            onClick = {
+                                navegacao?.navigate("login")
+                            },
                             modifier = Modifier
                                 .padding(bottom = 45.dp)
                                 .width(260.dp)
