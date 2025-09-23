@@ -79,6 +79,9 @@ fun Cadastroscreen(navegacao: NavHostController?) {
     var senhaState = remember {
         mutableStateOf("")
     }
+    var CsenhaState = remember {
+        mutableStateOf("")
+    }
 
 
     var mensagem by remember { mutableStateOf("") }
@@ -201,8 +204,10 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                     )
                     Spacer(modifier = Modifier .height(24.dp))
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = CsenhaState.value,
+                        onValueChange = {
+                            CsenhaState.value = it
+                        },
                         modifier = Modifier
                             .fillMaxWidth(),
                         shape = RoundedCornerShape(30.dp),
@@ -222,52 +227,6 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                             unfocusedContainerColor = Color(0x65AEDCFF)
                         ),
                     )
-                    Spacer(modifier = Modifier .height(24.dp))
-
-                    val tipoId = listOf(
-                        Pair("Pais/Responsaveis", 1),
-                        Pair("Medico", 2),
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = expandedTipoId,
-                        onExpandedChange = { expandedTipoId = !expandedTipoId }
-                    ) {
-                        OutlinedTextField(
-                            value = selectTipoId,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Selecione") },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTipoId)
-                            },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(30.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFF2C91DE),
-                                unfocusedBorderColor = Color(0xFF2C91DE),
-                                focusedContainerColor = Color(0x65AEDCFF),
-                                unfocusedContainerColor = Color(0x65AEDCFF)
-                            ),
-                        )
-
-                        ExposedDropdownMenu(
-                            expanded = expandedTipoId,
-                            onDismissRequest = { expandedTipoId = false }
-                        ) {
-                            tipoId.forEach { (label, id) ->
-                                DropdownMenuItem(
-                                    text = { Text(label) },
-                                    onClick = {
-                                        selectTipoId = label
-                                        expandedTipoId = false
-                                        selectedTipoIddrop.value = id
-                                    }
-                                )
-                            }
-                        }
-                    }
 
                     Spacer( modifier = Modifier .height(44.dp))
                     Column (
@@ -281,7 +240,6 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                                     id = 0,
                                     email = emailState.value,
                                     senha = senhaState.value,
-                                    idTipo = selectedTipoIddrop.value,
                                 )
 
                                 Log.i("Cadastro", " Enviando dados para API: $cliente")
@@ -298,6 +256,7 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                                         Log.e("Cadastro", "Erro ao cadastrar: ${e.message}")
                                     }
                                 }
+                                navegacao?.navigate("login")
                             },
                             colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                             shape = RoundedCornerShape(30.dp),

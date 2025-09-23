@@ -7,5 +7,5 @@ data class CadastroUser(
     val id: Int = 0,
     val email: String = "",
     val senha: String = "",
-    @SerializedName("id_tipo") var idTipo: Int = 0,
+    val idTipo: Int = 0,
 )

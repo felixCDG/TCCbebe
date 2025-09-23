@@ -55,6 +55,37 @@ import com.example.tccbebe.R
 @Composable
 fun CadastroBebe(navegacao: NavHostController?) {
 
+    var nomeState = remember {
+        mutableStateOf("")
+    }
+    var dataState = remember {
+        mutableStateOf("")
+    }
+    var nacionalidadeState = remember {
+        mutableStateOf("")
+    }
+    var naturalidadeState = remember {
+        mutableStateOf("")
+    }
+    var pesoState = remember {
+        mutableStateOf("")
+    }
+    var alturaState = remember {
+        mutableStateOf("")
+    }
+    var CNState = remember {
+        mutableStateOf("")
+    }
+    var cpfState = remember {
+        mutableStateOf("")
+    }
+    var CSCState = remember {
+        mutableStateOf("")
+    }
+    var obsState = remember {
+        mutableStateOf("")
+    }
+
     val expandedMenu = remember { mutableStateOf(false) }
     val selectedOption = remember { mutableStateOf("") }
 
@@ -133,8 +164,10 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = nomeState.value,
+                            onValueChange = {
+                                nomeState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
@@ -151,8 +184,10 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = dataState.value,
+                            onValueChange = {
+                                dataState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
@@ -226,8 +261,10 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             }
 
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = nacionalidadeState.value,
+                                onValueChange = {
+                                    nacionalidadeState.value = it
+                                },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(56.dp),
@@ -245,8 +282,10 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = naturalidadeState.value,
+                            onValueChange = {
+                                naturalidadeState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
@@ -301,8 +340,10 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = pesoState.value,
+                                onValueChange = {
+                                    pesoState.value = it
+                                },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(56.dp),
@@ -311,8 +352,10 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             )
 
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = alturaState.value,
+                                onValueChange = {
+                                    alturaState.value = it
+                                },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(56.dp),
@@ -443,17 +486,13 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = CNState.value,
+                            onValueChange = {
+                                CNState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Phone,
-                                    contentDescription = "Telefone"
-                                )
-                            },
                             placeholder = {
                                 Text("Numedo da certidao")
                             },
@@ -467,17 +506,13 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = cpfState.value,
+                            onValueChange = {
+                                cpfState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Email,
-                                    contentDescription = "Telefone"
-                                )
-                            },
                             placeholder = {
                                 Text("000.000.000.00")
                             },
@@ -491,17 +526,13 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = CSCState.value,
+                            onValueChange = {
+                                CSCState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Telefone"
-                                )
-                            },
                             placeholder = {
                                 Text("Numero")
                             },
@@ -542,25 +573,6 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "Obeservaçoes",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier
-                                .height(100.dp)
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            placeholder = {
-                                Text("Observações médicas, Alergias...")
-                            },
-                        )
 
                         Spacer(modifier = Modifier.height(34.dp))
                         Column(

@@ -1,5 +1,6 @@
 package com.example.tccbebe.screens
 
+import android.R.id.input
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -35,12 +37,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +54,25 @@ import com.example.tccbebe.R
 
 @Composable
 fun CadastroResponsavel(navegacao: NavHostController?) {
+
+    var nomeState = remember {
+        mutableStateOf("")
+    }
+    var dataNState = remember {
+        mutableStateOf("")
+    }
+    var cpfState = remember {
+        mutableStateOf("")
+    }
+    var profissaoState = remember {
+        mutableStateOf("")
+    }
+    var telefoneState = remember {
+        mutableStateOf("")
+    }
+    var cepState = remember {
+        mutableStateOf("")
+    }
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -121,8 +145,10 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = nomeState.value,
+                            onValueChange = {
+                                nomeState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
@@ -139,11 +165,23 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = dataNState.value,
+                            onValueChange = { input ->
+                                val numeros = input.filter { it.isDigit() }
+
+                                val formatado = when {
+                                    numeros.length <= 2 -> numeros
+                                    numeros.length <= 4 -> numeros.substring(0, 2) + "/" + numeros.substring(2)
+                                    numeros.length <= 8 -> numeros.substring(0, 2) + "/" + numeros.substring(2, 4) + "/" + numeros.substring(4)
+                                    else -> numeros.substring(0, 2) + "/" + numeros.substring(2, 4) + "/" + numeros.substring(4, 8)
+                                }
+
+                                dataNState.value = formatado
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
@@ -163,12 +201,24 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = cpfState.value,
+                            onValueChange = { input ->
+                                val numeros = input.filter { it.isDigit() }
+
+                                val formatado = when {
+                                    numeros.length <= 3 -> numeros
+                                    numeros.length <= 6 -> numeros.substring(0, 3) + "." + numeros.substring(3)
+                                    numeros.length <= 9 -> numeros.substring(0, 3) + "." + numeros.substring(3, 6) + "." + numeros.substring(6)
+                                    numeros.length <= 11 -> numeros.substring(0, 3) + "." + numeros.substring(3, 6) + "." + numeros.substring(6, 9) + "-" + numeros.substring(9)
+                                    else -> numeros.substring(0, 3) + "." + numeros.substring(3, 6) + "." + numeros.substring(6, 9) + "-" + numeros.substring(9, 11)
+                                }
+
+                                cpfState.value = formatado
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             placeholder = {
                                 Text("000.000.000-00")
                             },
@@ -182,8 +232,10 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = profissaoState.value,
+                            onValueChange = {
+                                profissaoState.value = it
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
@@ -201,11 +253,27 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = telefoneState.value,
+                            onValueChange = { input ->
+                                val numeros = input.filter { it.isDigit() }
+
+                                val formatado = when {
+                                    numeros.length <= 2 -> "(" + numeros
+                                    numeros.length <= 6 -> "(" + numeros.substring(0, 2) + ") " + numeros.substring(2)
+                                    numeros.length <= 10 -> "(" + numeros.substring(0, 2) + ") " +
+                                            numeros.substring(2, numeros.length - 4) + "-" +
+                                            numeros.substring(numeros.length - 4)
+                                    else -> "(" + numeros.substring(0, 2) + ") " +
+                                            numeros.substring(2, 7) + "-" +
+                                            numeros.substring(7, 11)
+                                }
+
+                                telefoneState.value = formatado
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Phone,
@@ -218,30 +286,6 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "E-MAIL *",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(30.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Email,
-                                    contentDescription = "Telefone"
-                                )
-                            },
-                            placeholder = {
-                                Text("exemplo@email.com")
-                            },
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
                             text = "CEP *",
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 20.sp,
@@ -249,11 +293,22 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = cepState.value,
+                            onValueChange = { input ->
+                                val numeros = input.filter { it.isDigit() }
+
+                                val formatado = when {
+                                    numeros.length <= 5 -> numeros
+                                    numeros.length <= 8 -> numeros.substring(0, 5) + "-" + numeros.substring(5)
+                                    else -> numeros.substring(0, 5) + "-" + numeros.substring(5, 8)
+                                }
+
+                                cepState.value = formatado
+                            },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,

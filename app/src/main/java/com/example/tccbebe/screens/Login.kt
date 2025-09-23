@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +45,13 @@ import com.example.tccbebe.R
 
 @Composable
 fun Loginscreen(navegacao: NavHostController?) {
+
+    var emailState = remember {
+        mutableStateOf("")
+    }
+    var senhaState = remember {
+        mutableStateOf("")
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(color = Color(0xFFAEDCFF))) {
         Column (
@@ -92,8 +101,10 @@ fun Loginscreen(navegacao: NavHostController?) {
                     )
                     Spacer( modifier = Modifier .height(5.dp))
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = emailState.value,
+                        onValueChange = {
+                            emailState.value = it
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
@@ -116,8 +127,10 @@ fun Loginscreen(navegacao: NavHostController?) {
                     )
                     Spacer( modifier = Modifier .height(5.dp))
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = senhaState.value,
+                        onValueChange = {
+                            senhaState.value = it
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
