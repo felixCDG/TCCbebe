@@ -1,5 +1,6 @@
 package com.example.tccbebe.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,6 +43,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.tccbebe.R
+import com.example.tccbebe.model.CadastroUser
+import com.example.tccbebe.model.Login
+import com.example.tccbebe.service.Conexao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.await
 
 @Composable
 fun Loginscreen(navegacao: NavHostController?) {
@@ -52,6 +61,8 @@ fun Loginscreen(navegacao: NavHostController?) {
     var senhaState = remember {
         mutableStateOf("")
     }
+
+    val clienteApi = Conexao().getLoginService()
 
     Box(modifier = Modifier.fillMaxSize().background(color = Color(0xFFAEDCFF))) {
         Column (
@@ -152,7 +163,30 @@ fun Loginscreen(navegacao: NavHostController?) {
                     ){
                         Button(
                             onClick = {
-                                navegacao?.navigate("cadastroR")
+                                val cliente = Login(
+                                    email = emailState.value,
+                                    senha = senhaState.value,
+                                )
+
+                                Log.i("Login", " Enviando dados para API: $cliente")
+
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    try {
+                                        val loginUsuario = clienteApi.loginUsuario(cliente).await()
+
+                                        // Mensagem de sucesso no Logcat
+                                        Log.i("Login", "Login realizado com sucesso! Dados: $loginUsuario")
+
+                                        withContext(Dispatchers.Main) {
+                                            navegacao?.navigate("cadastroR")
+                                        }
+
+                                    } catch (e: Exception) {
+                                        // Mensagem de erro no Logcat
+                                        Log.e("Login", "Erro ao Logar: ${e.message}")
+                                    }
+                                }
+
                             },
                             colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                             shape = RoundedCornerShape(30.dp),

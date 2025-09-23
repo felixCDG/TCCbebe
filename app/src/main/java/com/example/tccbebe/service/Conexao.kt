@@ -17,4 +17,8 @@ class Conexao {
         return conexao.create(CadastroService::class.java)
     }
 
+    fun getLoginService(): LoginService{
+        return conexao.create(LoginService::class.java)
+    }
+
 }

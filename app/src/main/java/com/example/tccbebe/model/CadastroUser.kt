@@ -7,5 +7,5 @@ data class CadastroUser(
     val id: Int = 0,
     val email: String = "",
     val senha: String = "",
-    val idTipo: Int = 0,
+    val id_tipo: Int = 1,
 )

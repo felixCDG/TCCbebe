@@ -593,7 +593,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                         shape = RoundedCornerShape(38.dp)
                                     ),
                             ) {
-                                Text(
+                                Text(  
                                     text = "ADICIONAR BEBE",
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
