@@ -70,4 +70,10 @@ dependencies {
 // última versão estável
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
 
+    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
+
+    implementation("androidx.compose.material3:material3")
+    
+    implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.7.2")
+
 }

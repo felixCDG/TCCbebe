@@ -14,13 +14,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.datetimepicker.DateTimePickerSample
 import com.example.tccbebe.screens.Bemvindo
 import com.example.tccbebe.screens.CadastroBebe
 import com.example.tccbebe.screens.CadastroResponsavel
 import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.CriarConta
 import com.example.tccbebe.screens.Loginscreen
-import com.example.tccbebe.screens.Teste
 import com.example.tccbebe.ui.theme.TCCBEBETheme
 
 class MainActivity : ComponentActivity() {
@@ -32,14 +32,14 @@ class MainActivity : ComponentActivity() {
             val navegacao = rememberNavController()
             NavHost(
                 navController = navegacao,
-                startDestination = "bemvindo"
+                startDestination = "teste2212"
             ){
+               composable(route = "teste2212"){ DateTimePickerSample(navegacao) }
                composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
                composable(route = "login"){ Loginscreen(navegacao) }
                composable(route = "cadastro"){ Cadastroscreen(navegacao) }
                composable(route = "cadastroR"){ CadastroResponsavel(navegacao) }
-               composable(route = "teste"){ Teste(navegacao) }
                composable(route = "cadastroB"){ CadastroBebe(navegacao) }
             }
 
