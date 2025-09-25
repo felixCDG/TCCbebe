@@ -8,7 +8,7 @@ import retrofit2.http.POST
 interface CadastroService {
 
     @Headers("Content-Type: application/json")
-    @POST("user")
+    @POST("user/cadastro")
     fun cadastrarUsuario(@Body cliente: CadastroUser): retrofit2.Call<CadastroUser>
 
 }

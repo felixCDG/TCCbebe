@@ -168,7 +168,8 @@ fun Loginscreen(navegacao: NavHostController?) {
                                     senha = senhaState.value,
                                 )
 
-                                Log.i("Login", " Enviando dados para API: $cliente")
+                                val json = com.google.gson.Gson().toJson(cliente)
+                                Log.i("Login JSON", json)
 
                                 GlobalScope.launch(Dispatchers.IO) {
                                     try {
@@ -193,7 +194,7 @@ fun Loginscreen(navegacao: NavHostController?) {
                             modifier = Modifier
                                 .width(270.dp)
                                 .border(
-                                    width = 2.dp, // 👈 tamanho da borda
+                                    width = 2.dp,
                                     color = Color(0xFF2C91DE),
                                     shape = RoundedCornerShape(38.dp)
                                 ),

@@ -202,98 +202,52 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             },
                         )
                         Spacer(modifier = Modifier.height(24.dp))
-                        Row (modifier = Modifier .fillMaxWidth(),   horizontalArrangement = Arrangement.spacedBy(130.dp)){
-                            Text(
-                                text = "Sexo *",
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 20.sp,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = "Nacionalidade *",
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 20.sp,
-                                color = Color.Black
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(7.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = selectedOption.value,
-                                onValueChange = {},
-                                readOnly = true,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(30.dp),
-                                trailingIcon = {
-                                    IconButton(onClick = { expandedMenu.value = !expandedMenu.value }) {
-                                        Icon(
-                                            imageVector = Icons.Default.ArrowDropDown,
-                                            contentDescription = "Abrir menu"
-                                        )
-                                    }
-                                },
-                                placeholder = { Text("Selecione") }
-                            )
-                            DropdownMenu(
-                                expanded = expandedMenu.value,
-                                onDismissRequest = { expandedMenu.value = false },
-                                modifier = Modifier.background(Color(0xFFFFFFFF))
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Masculino") },
-                                    onClick = {
-                                        selectedOption.value = "Masculino"
-                                        expandedMenu.value = false
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Feminino") },
-                                    onClick = {
-                                        selectedOption.value = "Feminino"
-                                        expandedMenu.value = false
-                                    }
-                                )
-                            }
-
-                            OutlinedTextField(
-                                value = nacionalidadeState.value,
-                                onValueChange = {
-                                    nacionalidadeState.value = it
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(30.dp),
-                                placeholder = { Text("Ex: Brasileiro") }
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "Naturalidade *",
+                            text = "Sexo*",
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 20.sp,
                             color = Color.Black
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = naturalidadeState.value,
-                            onValueChange = {
-                                naturalidadeState.value = it
-                            },
+                            value = selectSangue.value,
+                            onValueChange = {},
+                            readOnly = true,
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-
+                            trailingIcon = {
+                                IconButton(onClick = { expandedSangue.value = !expandedMenu.value }) {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = "Abrir menu"
+                                    )
+                                }
+                            },
                             placeholder = {
-                                Text("Cidade/Estado")
+                                Text("Selecione")
                             },
                         )
+                        DropdownMenu(
+                            expanded = expandedMenu.value,
+                            onDismissRequest = { expandedMenu.value = false },
+                            modifier = Modifier.background(Color(0xFFFFFFFF))
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Masculino") },
+                                onClick = {
+                                    selectedOption.value = "Masculino"
+                                    expandedMenu.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Feminino") },
+                                onClick = {
+                                    selectedOption.value = "Feminino"
+                                    expandedMenu.value = false
+                                }
+                            )
+                        }
                         Spacer(modifier = Modifier.height(20.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),

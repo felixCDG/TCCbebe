@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class Conexao {
 
-    private val BASE_URL = "http://10.0.2.2:3030/v1/"
+    private val BASE_URL = "http://10.0.2.2:3030/v1/sosbaby/"
 
     private val conexao= Retrofit
         .Builder()
