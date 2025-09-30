@@ -71,7 +71,7 @@ fun Loginscreen(navegacao: NavHostController?) {
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Image(
-                painter = painterResource(R.drawable.logoremovedor),
+                painter = painterResource(R.drawable.logocerta),
                 contentDescription = "",
                 modifier = Modifier
                     .size(280.dp),
