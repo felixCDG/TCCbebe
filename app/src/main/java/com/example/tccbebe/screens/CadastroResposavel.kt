@@ -1,6 +1,7 @@
 package com.example.tccbebe.screens
 
 import android.R.id.input
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
@@ -31,6 +33,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -55,6 +59,9 @@ import com.example.tccbebe.R
 @Composable
 fun CadastroResponsavel(navegacao: NavHostController?) {
 
+    val expandedMenupai = remember { mutableStateOf(false) }
+    val selectedOptionpai = remember { mutableStateOf("") }
+
     var nomeState = remember {
         mutableStateOf("")
     }
@@ -71,6 +78,9 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
         mutableStateOf("")
     }
     var cepState = remember {
+        mutableStateOf("")
+    }
+    var CSCState = remember {
         mutableStateOf("")
     }
 
@@ -166,17 +176,8 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
                             value = dataNState.value,
-                            onValueChange = { input ->
-                                val numeros = input.filter { it.isDigit() }
-
-                                val formatado = when {
-                                    numeros.length <= 2 -> numeros
-                                    numeros.length <= 4 -> numeros.substring(0, 2) + "/" + numeros.substring(2)
-                                    numeros.length <= 8 -> numeros.substring(0, 2) + "/" + numeros.substring(2, 4) + "/" + numeros.substring(4)
-                                    else -> numeros.substring(0, 2) + "/" + numeros.substring(2, 4) + "/" + numeros.substring(4, 8)
-                                }
-
-                                dataNState.value = formatado
+                            onValueChange = {
+                                dataNState.value
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -202,18 +203,8 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
                             value = cpfState.value,
-                            onValueChange = { input ->
-                                val numeros = input.filter { it.isDigit() }
-
-                                val formatado = when {
-                                    numeros.length <= 3 -> numeros
-                                    numeros.length <= 6 -> numeros.substring(0, 3) + "." + numeros.substring(3)
-                                    numeros.length <= 9 -> numeros.substring(0, 3) + "." + numeros.substring(3, 6) + "." + numeros.substring(6)
-                                    numeros.length <= 11 -> numeros.substring(0, 3) + "." + numeros.substring(3, 6) + "." + numeros.substring(6, 9) + "-" + numeros.substring(9)
-                                    else -> numeros.substring(0, 3) + "." + numeros.substring(3, 6) + "." + numeros.substring(6, 9) + "-" + numeros.substring(9, 11)
-                                }
-
-                                cpfState.value = formatado
+                            onValueChange = {
+                                cpfState.value
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -221,27 +212,6 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             placeholder = {
                                 Text("000.000.000-00")
-                            },
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "PROFISSÃO *",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = profissaoState.value,
-                            onValueChange = {
-                                profissaoState.value = it
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(30.dp),
-
-                            placeholder = {
-                                Text("Ex: Médico, Professor, etc...")
                             },
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -254,21 +224,8 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
                             value = telefoneState.value,
-                            onValueChange = { input ->
-                                val numeros = input.filter { it.isDigit() }
-
-                                val formatado = when {
-                                    numeros.length <= 2 -> "(" + numeros
-                                    numeros.length <= 6 -> "(" + numeros.substring(0, 2) + ") " + numeros.substring(2)
-                                    numeros.length <= 10 -> "(" + numeros.substring(0, 2) + ") " +
-                                            numeros.substring(2, numeros.length - 4) + "-" +
-                                            numeros.substring(numeros.length - 4)
-                                    else -> "(" + numeros.substring(0, 2) + ") " +
-                                            numeros.substring(2, 7) + "-" +
-                                            numeros.substring(7, 11)
-                                }
-
-                                telefoneState.value = formatado
+                            onValueChange = {
+                                telefoneState.value
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -285,6 +242,69 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                             },
                         )
                         Spacer(modifier = Modifier.height(24.dp))
+                        Column (
+                            modifier = Modifier.fillMaxWidth(),
+                        ){
+                            Spacer(modifier = Modifier,)
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 12.dp),
+                                text = "Uploude de Arquivos",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 12.dp),
+                                text = "Docs: RG,CNH,Certidao de Nascimento",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, Color.Black),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Email, // ícone de upload
+                                    contentDescription = "Upload",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = Color.Black
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Cartão SUS/ Convênio *",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(7.dp))
+                        OutlinedTextField(
+                            value = CSCState.value,
+                            onValueChange = {
+                                CSCState.value = it
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(30.dp),
+                            placeholder = {
+                                Text("Numero")
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
                         Text(
                             text = "CEP *",
                             fontWeight = FontWeight.ExtraBold,
@@ -294,16 +314,8 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
                             value = cepState.value,
-                            onValueChange = { input ->
-                                val numeros = input.filter { it.isDigit() }
-
-                                val formatado = when {
-                                    numeros.length <= 5 -> numeros
-                                    numeros.length <= 8 -> numeros.substring(0, 5) + "-" + numeros.substring(5)
-                                    else -> numeros.substring(0, 5) + "-" + numeros.substring(5, 8)
-                                }
-
-                                cepState.value = formatado
+                            onValueChange = {
+                                cepState.value
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -319,6 +331,53 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                                 Text("cep")
                             },
                         )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Sexo*",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(7.dp))
+                        OutlinedTextField(
+                            value = selectedOptionpai.value,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(30.dp),
+                            trailingIcon = {
+                                IconButton(onClick = { expandedMenupai.value = !expandedMenupai.value }) {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = "Abrir menu"
+                                    )
+                                }
+                            },
+                            placeholder = {
+                                Text("Selecione")
+                            },
+                        )
+                        DropdownMenu(
+                            expanded = expandedMenupai.value,
+                            onDismissRequest = { expandedMenupai.value = false },
+                            modifier = Modifier.background(Color(0xFFFFFFFF))
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Masculino") },
+                                onClick = {
+                                    selectedOptionpai.value = "Masculino"
+                                    expandedMenupai.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Feminino") },
+                                onClick = {
+                                    selectedOptionpai.value = "Feminino"
+                                    expandedMenupai.value = false
+                                }
+                            )
+                        }
                         Spacer(modifier = Modifier.height(34.dp))
                         Column(
                             modifier = Modifier

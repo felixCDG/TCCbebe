@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.datetimepicker.DateTimePickerSample
 import com.example.tccbebe.screens.Bemvindo
 import com.example.tccbebe.screens.CadastroBebe
 import com.example.tccbebe.screens.CadastroResponsavel
@@ -32,9 +31,8 @@ class MainActivity : ComponentActivity() {
             val navegacao = rememberNavController()
             NavHost(
                 navController = navegacao,
-                startDestination = "teste2212"
+                startDestination = "criarconta"
             ){
-               composable(route = "teste2212"){ DateTimePickerSample(navegacao) }
                composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
                composable(route = "login"){ Loginscreen(navegacao) }
