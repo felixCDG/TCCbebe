@@ -21,4 +21,8 @@ class Conexao {
         return conexao.create(LoginService::class.java)
     }
 
+    fun getRegistroRspService(): RegistroResp{
+        return conexao.create(RegistroResp::class.java)
+    }
+
 }

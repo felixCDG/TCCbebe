@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +47,7 @@ import com.example.tccbebe.R
 import com.example.tccbebe.model.CadastroUser
 import com.example.tccbebe.model.Login
 import com.example.tccbebe.service.Conexao
+import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -162,6 +164,9 @@ fun Loginscreen(navegacao: NavHostController?) {
                             .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
+
+                        val context = LocalContext.current
+
                         Button(
                             onClick = {
                                 val cliente = Login(
@@ -176,16 +181,17 @@ fun Loginscreen(navegacao: NavHostController?) {
                                     try {
                                         val loginUsuario = clienteApi.loginUsuario(cliente).await()
 
-                                        // Mensagem de sucesso no Logcat
-                                        Log.i("Login", "Login realizado com sucesso! Dados: $loginUsuario")
+                                        // Logs detalhados, igual ao cadastro
+                                        Log.i("API_CADASTRO", "Resposta completa: $loginUsuario")
+
+                                        SessionManager.saveUserId(context, loginUsuario.data?.id_user ?: 0)
 
                                         withContext(Dispatchers.Main) {
                                             navegacao?.navigate("cadastroR")
                                         }
 
                                     } catch (e: Exception) {
-                                        // Mensagem de erro no Logcat
-                                        Log.e("Login", "Erro ao Logar: ${e.message}")
+                                        Log.e("API_CADASTRO", "Erro ao Logar: ${e.message}")
                                     }
                                 }
 

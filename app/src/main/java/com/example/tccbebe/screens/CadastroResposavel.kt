@@ -1,10 +1,15 @@
 package com.example.tccbebe.screens
 
 import android.R.id.input
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,13 +45,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import coil.compose.AsyncImage
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,13 +64,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import br.senai.sp.jandira.foodrecipe.service.AzureUploadService
+import br.senai.sp.jandira.foodrecipe.service.AzureUploadService.uploadImageToAzure
 import com.example.tccbebe.R
+import com.example.tccbebe.model.CadastroUser
+import com.example.tccbebe.model.RegistroResp
+import com.example.tccbebe.service.Conexao
+import com.example.tccbebe.utils.SessionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.await
 
 @Composable
 fun CadastroResponsavel(navegacao: NavHostController?) {
 
+
+    // 1) Estado para armazenar o URI da imagem escolhida
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 2) Estado para armazenar a URL retornada pelo Azure
+    var imageUrl by remember { mutableStateOf<String?>(null) }
+
+    // 3) Launcher para pegar o arquivo via Galeria
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            imageUri = uri
+        }
+
+    val context = LocalContext.current
+
     val expandedMenupai = remember { mutableStateOf(false) }
     val selectedOptionpai = remember { mutableStateOf("") }
+
+    val pictureState = remember { mutableStateOf("") }
+
+    val selectedOptionId = remember { mutableStateOf<Int?>(null) }
 
     var nomeState = remember {
         mutableStateOf("")
@@ -83,6 +123,8 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
     var CSCState = remember {
         mutableStateOf("")
     }
+
+    val clienteApi = Conexao().getRegistroRspService()
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -177,12 +219,11 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         OutlinedTextField(
                             value = dataNState.value,
                             onValueChange = {
-                                dataNState.value
+                                dataNState.value = it
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
@@ -204,12 +245,11 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         OutlinedTextField(
                             value = cpfState.value,
                             onValueChange = {
-                                cpfState.value
+                                cpfState.value = it
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             placeholder = {
                                 Text("000.000.000-00")
                             },
@@ -225,12 +265,11 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         OutlinedTextField(
                             value = telefoneState.value,
                             onValueChange = {
-                                telefoneState.value
+                                telefoneState.value = it
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Phone,
@@ -264,26 +303,49 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                             )
                         }
                         Spacer(modifier = Modifier.height(20.dp))
-                        Card(
+                        // Dentro da Column que você já tem, substitua este Card:
+                        OutlinedTextField(
+                            value = pictureState.value,
+                            onValueChange = { },
+                            shape = RoundedCornerShape(10.dp),
+                            label = {
+                                Text(
+                                    text = "Imagem",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFF000000)
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Default.Email,
+                                    contentDescription = "",
+                                    tint = Color(0xFF000000),
+                                    modifier = Modifier
+                                        .padding(start = 10.dp)
+                                        .size(40.dp)
+                                )
+                            },
+                            enabled = false,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(120.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(1.dp, Color.Black),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Email, // ícone de upload
-                                    contentDescription = "Upload",
-                                    modifier = Modifier.size(48.dp),
-                                    tint = Color.Black
-                                )
-                            }
+                                .clickable {
+                                    pickImageLauncher.launch("image/*")
+                                }
+                        )
+
+                        imageUri?.let { uri ->
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = "Imagem Selecionada",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                                    .border(2.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 4.dp),
+                                contentScale = ContentScale.Crop
+                            )
                         }
+
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
                             text = "Cartão SUS/ Convênio *",
@@ -315,12 +377,11 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                         OutlinedTextField(
                             value = cepState.value,
                             onValueChange = {
-                                cepState.value
+                                cepState.value = it
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,
@@ -367,13 +428,15 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                                 text = { Text("Masculino") },
                                 onClick = {
                                     selectedOptionpai.value = "Masculino"
+                                    selectedOptionId.value = 1
                                     expandedMenupai.value = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text("Feminino") },
                                 onClick = {
-                                    selectedOptionpai.value = "Feminino"
+                                    selectedOptionpai.value = "Masculino"
+                                    selectedOptionId.value = 2
                                     expandedMenupai.value = false
                                 }
                             )
@@ -384,9 +447,51 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                                 .fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+
+                            val context = LocalContext.current
+
                             Button(
                                 onClick = {
-                                    navegacao?.navigate("cadastroB")
+                                    if (imageUri != null) {
+                                        GlobalScope.launch(Dispatchers.IO) {
+                                            try {
+                                                // 1️⃣ Faz o upload e pega a URL
+                                                val urlRetornada = uploadImageToAzure(context, imageUri!!)
+
+                                                withContext(Dispatchers.Main) {
+                                                    pictureState.value = urlRetornada // atualiza o state
+                                                }
+
+                                                val idUser = SessionManager.getUserId(context)
+
+                                                // 2️⃣ Cria o objeto com a URL correta
+                                                val cliente = RegistroResp(
+                                                    id_responsavel = 0,
+                                                    nome = nomeState.value,
+                                                    data_nascimento = dataNState.value,
+                                                    cpf = cpfState.value,
+                                                    telefone = telefoneState.value,
+                                                    arquivo = urlRetornada, // <-- usa a URL retornada
+                                                    cartao_medico = CSCState.value,
+                                                    cep = cepState.value,
+                                                    idSexo = selectedOptionId.value ?: 0,
+                                                    id_user = idUser
+                                                )
+
+                                                val response = clienteApi.cadastrarResponsavel(cliente).await()
+                                                Log.i("API_CADASTRO", "Resposta: $response")
+
+                                                withContext(Dispatchers.Main) {
+                                                    navegacao?.navigate("login")
+                                                }
+
+                                            } catch (e: Exception) {
+                                                Log.e("API_CADASTRO", "Erro: ${e.message}")
+                                            }
+                                        }
+                                    } else {
+                                        Log.e("UPLOAD", "Nenhuma imagem selecionada")
+                                    }
                                 },
                                 colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                                 shape = RoundedCornerShape(30.dp),

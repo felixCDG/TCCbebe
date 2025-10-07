@@ -50,6 +50,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -60,6 +61,7 @@ import androidx.navigation.NavHostController
 import com.example.tccbebe.R
 import com.example.tccbebe.model.CadastroUser
 import com.example.tccbebe.service.Conexao
+import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -234,10 +236,12 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                             .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
+                        val context = LocalContext.current
+
                         Button(
                             onClick = {
                                 val cliente = CadastroUser(
-                                    id = 0,
+                                    id_user = 0,
                                     email = emailState.value,
                                     senha = senhaState.value,
                                     id_tipo = 1,
@@ -245,16 +249,21 @@ fun Cadastroscreen(navegacao: NavHostController?) {
 
                                 Log.i("Cadastro", " Enviando dados para API: $cliente")
 
+
                                 GlobalScope.launch(Dispatchers.IO) {
                                     try {
-                                        val cadastroNovo = clienteApi.cadastrarUsuario(cliente).await()
+                                        val response = clienteApi.cadastrarUsuario(cliente).await()
 
-                                        // Mensagem de sucesso no Logcat
-                                        Log.i("Cadastro", "Cadastro realizado com sucesso! Dados: $cadastroNovo")
+                                        // Exibe tudo no Logcat
+                                        Log.i("API_CADASTRO", "Resposta completa: $response")
+                                        Log.i("API_CADASTRO", "Mensagem: ${response.message}")
+                                        Log.i("API_CADASTRO", "ID do usuário: ${response.data.id_user}")
+
+                                        // Salva o ID para usar depois
+                                        SessionManager.saveUserId(context = context, userId = response.data.id_user)
 
                                     } catch (e: Exception) {
-                                        // Mensagem de erro no Logcat
-                                        Log.e("Cadastro", "Erro ao cadastrar: ${e.message}")
+                                        Log.e("API_CADASTRO", "Erro ao cadastrar: ${e.message}")
                                     }
                                 }
                                 navegacao?.navigate("login")
