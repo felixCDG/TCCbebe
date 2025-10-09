@@ -45,6 +45,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+    //calendario
+    implementation("com.kizitonwose.calendar:view:2.4.0")
+
     //Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 

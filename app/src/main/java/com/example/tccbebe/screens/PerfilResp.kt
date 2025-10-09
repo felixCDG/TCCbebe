@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
@@ -227,13 +228,22 @@ fun PerfilResp(navegacao: NavHostController?) {
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
-                        IconButton() { }
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "",
                             modifier = Modifier
                                 .size(125.dp)
                         )
+                        IconButton(
+                            onClick = {}
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Create,
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(25.dp)
+                            )
+                        }
                         Text(
                             text = dataNState.value,
                             color = Color.Black,
