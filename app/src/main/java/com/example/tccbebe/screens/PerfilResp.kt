@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
@@ -71,6 +72,9 @@ import br.senai.sp.jandira.foodrecipe.service.AzureUploadService.uploadImageToAz
 import com.example.tccbebe.R
 import com.example.tccbebe.model.CadastroUser
 import com.example.tccbebe.model.RegistroResp
+import com.example.tccbebe.model.ResponseLoginUser
+import com.example.tccbebe.model.ResponsePerfilResp
+import com.example.tccbebe.model.ResponseRegistroResp
 import com.example.tccbebe.service.Conexao
 import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
@@ -85,43 +89,61 @@ fun PerfilResp(navegacao: NavHostController?) {
 
     val context = LocalContext.current
 
-    var nomeState = remember {
-        mutableStateOf("")
-    }
-    var dataNState = remember {
-        mutableStateOf("")
-    }
-    var cpfState = remember {
-        mutableStateOf("")
-    }
-    var telefoneState = remember {
-        mutableStateOf("")
-    }
-    var cepState = remember {
-        mutableStateOf("")
-    }
+// Estados dos campos
+    var nomeState = remember { mutableStateOf("") }
+    var dataNState = remember { mutableStateOf("") }
+    var cpfState = remember { mutableStateOf("") }
+    var telefoneState = remember { mutableStateOf("") }
+    var cepState = remember { mutableStateOf("") }
+    var emailState = remember { mutableStateOf("") }
 
+// Pegar o ID salvo localmente
     LaunchedEffect(Unit) {
+        // ID fixo que você sabe que existe no banco
         val idResponsavel = SessionManager.getResponsavelId(context)
 
-        if (idResponsavel != -1) {
-            try {
-                val api = Conexao().getPerfilRespService() // serviço Retrofit
-                val responsavel = api.perfildoResp(idResponsavel)
+        val call = Conexao()
+            .getRegistroRspService()
+            .getResponsavelById(idResponsavel)
 
-                // Popular os campos da tela
-                nomeState.value = responsavel.nome
-                dataNState.value = responsavel.data_nascimento
-                cpfState.value = responsavel.cpf
-                telefoneState.value = responsavel.telefone
-                cepState.value = responsavel.cep
-            } catch (e: Exception) {
-                Log.e("API_PERFIL", "Erro ao buscar perfil: ${e.message}")
+        Log.i("API_REQUEST", "GET URL: ${call.request().url}")
+        Log.i("API_REQUEST", "Método: ${call.request().method}")
+        Log.i("API_REQUEST", "Cabeçalhos: ${call.request().headers}")
+
+        call.enqueue(object : retrofit2.Callback<ResponsePerfilResp> {
+            override fun onResponse(
+                call: retrofit2.Call<ResponsePerfilResp>,
+                response: retrofit2.Response<ResponsePerfilResp>
+            ) {
+                if (response.isSuccessful) {
+                    val respList = response.body()?.responsavel
+                    if (!respList.isNullOrEmpty()) {
+                        val respData = respList[0] // Pega o primeiro elemento
+                        nomeState.value = respData.nome
+                        dataNState.value = respData.data_nascimento
+                        cpfState.value = respData.cpf
+                        telefoneState.value = respData.telefone
+                        cepState.value = respData.cep
+                        emailState.value = respData.usuario?.firstOrNull()?.email ?: "Não disponível"
+
+                    } else {
+                        nomeState.value = "Não encontrado"
+                        dataNState.value = "-"
+                        cpfState.value = "-"
+                        telefoneState.value = "-"
+                        cepState.value = "-"
+                    }
+                } else {
+                    Log.e("PerfilResp", "Erro HTTP: ${response.code()}")
+                }
             }
-        } else {
-            Log.e("API_PERFIL", "ID do responsável não encontrado")
-        }
+
+            override fun onFailure(call: retrofit2.Call<ResponsePerfilResp>, t: Throwable) {
+                Log.e("PerfilResp", "Erro ao buscar perfil: ${t.message}")
+            }
+        })
     }
+
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -205,8 +227,9 @@ fun PerfilResp(navegacao: NavHostController?) {
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
+                        IconButton() { }
                         Icon(
-                            imageVector = Icons.Default.Person,
+                            imageVector = Icons.Default.AccountCircle,
                             contentDescription = "",
                             modifier = Modifier
                                 .size(125.dp)
@@ -223,6 +246,33 @@ fun PerfilResp(navegacao: NavHostController?) {
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState()),
                     ) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Nome",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(7.dp))
+                        OutlinedTextField(
+                            value = nomeState.value,
+                            onValueChange = {},
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    width = 2.dp, // 👈 tamanho da borda
+                                    color = Color(0xFF2C91DE),
+                                    shape = RoundedCornerShape(30.dp)
+                                ),
+                            shape = RoundedCornerShape(30.dp),
+                            placeholder = {
+                                Text("000.000.000-00")
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color(0x65AEDCFF),
+                                unfocusedContainerColor = Color(0x65AEDCFF)
+                            ),
+                        )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
                             text = "CPF",
@@ -283,7 +333,7 @@ fun PerfilResp(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "CEP *",
+                            text = "CEP",
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 20.sp,
                             color = Color.Black
@@ -310,6 +360,39 @@ fun PerfilResp(navegacao: NavHostController?) {
                             },
                             placeholder = {
                                 Text("cep")
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color(0x65AEDCFF),
+                                unfocusedContainerColor = Color(0x65AEDCFF)
+                            ),
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Email",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(7.dp))
+                        OutlinedTextField(
+                            value = emailState.value,
+                            onValueChange = {},
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    width = 2.dp, // 👈 tamanho da borda
+                                    color = Color(0xFF2C91DE),
+                                    shape = RoundedCornerShape(30.dp)
+                                ),
+                            shape = RoundedCornerShape(30.dp),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Email,
+                                    contentDescription = "email"
+                                )
+                            },
+                            placeholder = {
+                                Text("email")
                             },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = Color(0x65AEDCFF),

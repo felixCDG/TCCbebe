@@ -29,9 +29,6 @@ class Conexao {
         return conexao.create(RegistroBebe::class.java)
     }
 
-    fun getPerfilRespService(): PerfilResp{
-        return conexao.create(PerfilResp::class.java)
-    }
 
 
 }

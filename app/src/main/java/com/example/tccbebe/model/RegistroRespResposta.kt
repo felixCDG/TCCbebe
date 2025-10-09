@@ -12,7 +12,8 @@ data class RegistroRespData(
     val cartao_medico: String,
     val cep: String,
     @SerializedName("id_sexo") var idSexo: Int,
-    val id_user: Int
+    val id_user: Int,
+    val usuario: List<LoginUserData>
 )
 
 data class ResponseRegistroResp(
@@ -20,4 +21,10 @@ data class ResponseRegistroResp(
     val status_code: Int,
     val message: String,
     val data: RegistroRespData
+)
+
+data class ResponsePerfilResp(
+    val message: String,
+    val status_code: Int,
+    val responsavel: List<RegistroRespData>
 )
