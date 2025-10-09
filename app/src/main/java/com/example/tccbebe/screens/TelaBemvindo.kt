@@ -1,5 +1,6 @@
 package com.example.tccbebe.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +43,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
 import com.example.tccbebe.R
 import com.example.tccbebe.ui.theme.TCCBEBETheme
+import com.example.tccbebe.utils.SessionManager
 
 fun CurvedTopShape() = GenericShape { size, _ ->
     moveTo(0f, size.height) // canto inferior esquerdo
@@ -210,9 +213,10 @@ fun Bemvindo(navegacao: NavHostController?) {
                                        .padding(bottom = 0.dp)
                                        .size(147.dp)
                                )
+                               val context = LocalContext.current
                                Button(
                                    onClick = {
-                                       navegacao?.navigate("criarconta")
+
                                    },
                                    colors = ButtonDefaults.buttonColors(Color(0xfffffffff)),
                                    modifier = Modifier

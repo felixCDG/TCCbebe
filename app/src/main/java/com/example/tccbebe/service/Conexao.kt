@@ -25,4 +25,13 @@ class Conexao {
         return conexao.create(RegistroResp::class.java)
     }
 
+    fun getRegistroBebeService(): RegistroBebe{
+        return conexao.create(RegistroBebe::class.java)
+    }
+
+    fun getPerfilRespService(): PerfilResp{
+        return conexao.create(PerfilResp::class.java)
+    }
+
+
 }

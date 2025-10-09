@@ -1,15 +1,15 @@
 package com.example.tccbebe.service
 
+import com.example.tccbebe.model.RegistroBebe
 import com.example.tccbebe.model.RegistroResp
-import com.example.tccbebe.model.ResponseRegistroResp
 import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
-interface RegistroResp {
+interface RegistroBebe {
 
     @Headers("Content-Type: application/json")
-    @POST("resp/cadastro")
-    fun cadastrarResponsavel(@Body cliente: RegistroResp): retrofit2.Call<ResponseRegistroResp>
+    @POST("baby/cadastro")
+    fun cadastroBabe(@Body cliente: RegistroBebe): retrofit2.Call<RegistroBebe>
 
 }

@@ -1,9 +1,14 @@
 package com.example.tccbebe.screens
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,23 +42,57 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import br.senai.sp.jandira.foodrecipe.service.AzureUploadService.uploadImageToAzure
+import coil.compose.AsyncImage
 import com.example.tccbebe.R
+import com.example.tccbebe.model.RegistroBebe
+import com.example.tccbebe.model.RegistroResp
+import com.example.tccbebe.service.Conexao
+import com.example.tccbebe.utils.SessionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.await
 
 
 @Composable
 fun CadastroBebe(navegacao: NavHostController?) {
+
+
+    // 1) Estado para armazenar o URI da imagem escolhida
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 2) Estado para armazenar a URL retornada pelo Azure
+    var imageUrl by remember { mutableStateOf<String?>(null) }
+
+    // 3) Launcher para pegar o arquivo via Galeria
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            imageUri = uri
+        }
+
+    val context = LocalContext.current
+
+    val selectedOptionId = remember { mutableStateOf<Int?>(null) }
+    val selectedOptionSanId = remember { mutableStateOf<Int?>(null) }
+
+    val pictureState = remember { mutableStateOf("") }
 
     var nomeState = remember {
         mutableStateOf("")
@@ -91,6 +130,8 @@ fun CadastroBebe(navegacao: NavHostController?) {
 
     val expandedSangue = remember { mutableStateOf(false) }
     val selectSangue = remember { mutableStateOf("") }
+
+    val clienteApi = Conexao().getRegistroBebeService()
 
 
     Box(modifier = Modifier
@@ -210,14 +251,14 @@ fun CadastroBebe(navegacao: NavHostController?) {
                         )
                         Spacer(modifier = Modifier.height(7.dp))
                         OutlinedTextField(
-                            value = selectSangue.value,
+                            value = selectedOption.value,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(30.dp),
                             trailingIcon = {
-                                IconButton(onClick = { expandedSangue.value = !expandedMenu.value }) {
+                                IconButton(onClick = { expandedMenu.value = !expandedMenu.value }) {
                                     Icon(
                                         imageVector = Icons.Default.ArrowDropDown,
                                         contentDescription = "Abrir menu"
@@ -237,6 +278,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("Masculino") },
                                 onClick = {
                                     selectedOption.value = "Masculino"
+                                    selectedOptionId.value = 1
                                     expandedMenu.value = false
                                 }
                             )
@@ -244,6 +286,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("Feminino") },
                                 onClick = {
                                     selectedOption.value = "Feminino"
+                                    selectedOptionId.value = 1
                                     expandedMenu.value = false
                                 }
                             )
@@ -353,6 +396,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("A+") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: A+"
+                                    selectedOptionSanId.value = 1
                                     expandedSangue.value = false
                                 }
                             )
@@ -360,6 +404,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("A-") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: A-"
+                                    selectedOptionSanId.value = 2
                                     expandedSangue.value = false
                                 }
                             )
@@ -367,6 +412,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("B+") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: B+"
+                                    selectedOptionSanId.value = 3
                                     expandedSangue.value = false
                                 }
                             )
@@ -374,6 +420,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("B-") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: B-"
+                                    selectedOptionSanId.value = 4
                                     expandedSangue.value = false
                                 }
                             )
@@ -381,6 +428,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("AB+") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: AB+"
+                                    selectedOptionSanId.value = 5
                                     expandedSangue.value = false
                                 }
                             )
@@ -388,6 +436,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("AB-") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: AB-"
+                                    selectedOptionSanId.value = 6
                                     expandedSangue.value = false
                                 }
                             )
@@ -395,6 +444,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("O+") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: O+"
+                                    selectedOptionSanId.value = 7
                                     expandedSangue.value = false
                                 }
                             )
@@ -402,6 +452,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                 text = { Text("O-") },
                                 onClick = {
                                     selectSangue.value = "Tipo sanguinio: O-"
+                                    selectedOptionSanId.value = 8
                                     expandedSangue.value = false
                                 }
                             )
@@ -507,25 +558,69 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             )
                         }
                         Spacer(modifier = Modifier.height(20.dp))
-                        Card(
+                        Column (
+                            modifier = Modifier.fillMaxWidth(),
+                        ){
+                            Spacer(modifier = Modifier,)
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 12.dp),
+                                text = "Uploude de Arquivos",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 12.dp),
+                                text = "Docs: RG,CNH,Certidao de Nascimento",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        // Dentro da Column que você já tem, substitua este Card:
+                        OutlinedTextField(
+                            value = pictureState.value,
+                            onValueChange = { },
+                            shape = RoundedCornerShape(10.dp),
+                            label = {
+                                Text(
+                                    text = "Imagem",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFF000000)
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Default.Email,
+                                    contentDescription = "",
+                                    tint = Color(0xFF000000),
+                                    modifier = Modifier
+                                        .padding(start = 10.dp)
+                                        .size(40.dp)
+                                )
+                            },
+                            enabled = false,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(120.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(1.dp, Color.Black),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Email, // ícone de upload
-                                    contentDescription = "Upload",
-                                    modifier = Modifier.size(48.dp),
-                                    tint = Color.Black
-                                )
-                            }
+                                .clickable {
+                                    pickImageLauncher.launch("image/*")
+                                }
+                        )
+
+                        imageUri?.let { uri ->
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = "Imagem Selecionada",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                                    .border(2.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 4.dp),
+                                contentScale = ContentScale.Crop
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(34.dp))
@@ -535,7 +630,52 @@ fun CadastroBebe(navegacao: NavHostController?) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Button(
-                                onClick = {},
+                                onClick = {
+
+                                    if (imageUri != null) {
+                                        GlobalScope.launch(Dispatchers.IO) {
+                                            try {
+                                                // 1️⃣ Faz o upload e pega a URL
+                                                val urlRetornada = uploadImageToAzure(context, imageUri!!)
+
+                                                withContext(Dispatchers.Main) {
+                                                    pictureState.value = urlRetornada // atualiza o state
+                                                }
+
+                                                val idUser = SessionManager.getUserId(context)
+
+                                                // 2️⃣ Cria o objeto com a URL correta
+                                                val cliente = RegistroBebe(
+                                                    id_bebe = 0,
+                                                    nome = nomeState.value,
+                                                    data_nascimento = dataState.value,
+                                                    peso = pesoState.value,
+                                                    altura = alturaState.value,
+                                                    certidao_nascimento = CNState.value,
+                                                    cpf = cpfState.value,
+                                                    imagem_certidao = urlRetornada, // <-- usa a URL retornada
+                                                    cartao_medico = CSCState.value,
+                                                    idSexo = selectedOptionId.value ?: 0,
+                                                    idSangue = selectedOptionSanId.value ?: 0,
+                                                    id_user = idUser
+                                                )
+
+                                                val response = clienteApi.cadastroBabe(cliente).await()
+                                                Log.i("API_CADASTRO", "Resposta: $response")
+
+                                                withContext(Dispatchers.Main) {
+                                                    navegacao?.navigate("login")
+                                                }
+
+                                            } catch (e: Exception) {
+                                                Log.e("API_CADASTRO", "Erro: ${e.message}")
+                                            }
+                                        }
+                                    } else {
+                                        Log.e("UPLOAD", "Nenhuma imagem selecionada")
+                                    }
+
+                                },
                                 colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
                                 shape = RoundedCornerShape(30.dp),
                                 modifier = Modifier

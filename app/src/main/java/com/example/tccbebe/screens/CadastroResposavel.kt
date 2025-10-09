@@ -478,11 +478,21 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                                                     id_user = idUser
                                                 )
 
+
+
                                                 val response = clienteApi.cadastrarResponsavel(cliente).await()
                                                 Log.i("API_CADASTRO", "Resposta: $response")
+                                                Log.i("API_CADASTRO", "Resposta completa: $response")
+                                                Log.i("API_CADASTRO", "Mensagem: ${response.message}")
+                                                Log.i("API_CADASTRO", "ID do usuário: ${response.data.id_user}")
+
+                                                // Salva o ID para usar depois
+                                                SessionManager.saveUserId(context = context, userId = response.data.id_user)
+                                                // Salva o ID do responsável no SessionManager
+                                                SessionManager.saveResponsavelId(context, response.data.id_responsavel)
 
                                                 withContext(Dispatchers.Main) {
-                                                    navegacao?.navigate("login")
+                                                    navegacao?.navigate("perfilResp")
                                                 }
 
                                             } catch (e: Exception) {
