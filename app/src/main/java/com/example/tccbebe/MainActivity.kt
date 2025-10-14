@@ -18,6 +18,7 @@ import com.example.tccbebe.screens.Bemvindo
 import com.example.tccbebe.screens.CadastroBebe
 import com.example.tccbebe.screens.CadastroResponsavel
 import com.example.tccbebe.screens.Cadastroscreen
+import com.example.tccbebe.screens.CalendarioScreen
 import com.example.tccbebe.screens.CriarConta
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
             val navegacao = rememberNavController()
             NavHost(
                 navController = navegacao,
-                startDestination = "criarconta"
+                startDestination = "calendario"
             ){
                composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
                composable(route = "cadastroR"){ CadastroResponsavel(navegacao) }
                composable(route = "cadastroB"){ CadastroBebe(navegacao) }
                composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
+               composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
             }
 
         }

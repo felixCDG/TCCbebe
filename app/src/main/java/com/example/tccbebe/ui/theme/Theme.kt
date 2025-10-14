@@ -11,6 +11,26 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+
+
+import androidx.compose.ui.graphics.Color
+
+private val LightColorSchemeCalendario = lightColorScheme(
+    primary = Color(0xFF7986CB),
+    secondary = Color(0xFFE57373),
+    background = Color.White,
+    surface = Color.White
+)
+
+@Composable
+fun CalendarioTheme(
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        colorScheme = LightColorSchemeCalendario,
+        content = content
+    )
+}
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,

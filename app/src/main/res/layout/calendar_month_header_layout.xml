@@ -4,4 +4,14 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/calendarMonthHeaderText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="8dp" />
+
+
 </LinearLayout>
