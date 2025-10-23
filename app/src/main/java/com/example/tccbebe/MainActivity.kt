@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
             val navegacao = rememberNavController()
             NavHost(
                 navController = navegacao,
-                startDestination = "calendario"
+                startDestination = "criarconta"
             ){
                composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
