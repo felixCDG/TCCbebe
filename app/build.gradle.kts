@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.tccbebe"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.tccbebe"
-        minSdk = 31
-        targetSdk = 36
+        minSdk = 24
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -49,14 +49,16 @@ dependencies {
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.1")
+
 // Calendário
-    implementation("com.kizitonwose.calendar:view:2.4.0")
+    implementation("com.kizitonwose.calendar:view:2.3.0")
 
 // Coil
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.2.2")
 
 // BOM do Compose (somente um)
-    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
 
 // Compose UI
     implementation("androidx.compose.ui:ui")
@@ -64,31 +66,31 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
 
 // Material3
-    implementation("androidx.compose.material3:material3:1.2.0")
-    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
 
 // Navegação Compose
-    implementation("androidx.navigation:navigation-compose:2.9.3")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
 // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 // OkHttp Logging (para logs das requisições)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
 // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 
 // ViewModel + Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
 // Coroutines (para chamadas assíncronas)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
 
 // DateTime pickers Material3
-    implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.7.2")
+    implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.0")
 
 // Testes
     testImplementation(libs.junit)
