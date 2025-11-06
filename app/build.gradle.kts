@@ -30,6 +30,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -45,43 +47,55 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    //calendario
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+// Calendário
     implementation("com.kizitonwose.calendar:view:2.4.0")
 
-    //Coil
+// Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 
-    // BOM do Compose (somente um)
+// BOM do Compose (somente um)
     implementation(platform("androidx.compose:compose-bom:2025.09.00"))
 
-    // Compose UI
+// Compose UI
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.ui:ui-graphics")
 
-    // Material3
-    implementation("androidx.compose.material3:material3:1.2.0") // ou a versão mais recente
+// Material3
+    implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
 
-    // Navegação Compose
+// Navegação Compose
     implementation("androidx.navigation:navigation-compose:2.9.3")
 
-    // Retrofit
+// Retrofit
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
-    // Lifecycle
+// OkHttp Logging (para logs das requisições)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+// Lifecycle
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
 
-    // Data pickers Material3
+// ViewModel + Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+// Coroutines (para chamadas assíncronas)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+// DateTime pickers Material3
     implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.7.2")
 
-    // Testes
+// Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
 }

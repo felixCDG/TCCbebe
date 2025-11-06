@@ -75,6 +75,9 @@ fun Cadastroscreen(navegacao: NavHostController?) {
     var selectTipoId by remember { mutableStateOf("") }
     val selectedTipoIddrop = remember { mutableStateOf(0) }
 
+    var nameState = remember {
+        mutableStateOf("")
+    }
     var emailState = remember {
         mutableStateOf("")
     }
@@ -153,6 +156,31 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                         color = Color.Black,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 44.sp
+                    )
+                    Spacer(modifier = Modifier .height(24.dp))
+                    OutlinedTextField(
+                        value = nameState.value,
+                        onValueChange = {
+                            nameState.value = it
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(30.dp),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Email,
+                                contentDescription = "Nome"
+                            )
+                        },
+                        label = {
+                            Text("Nome")
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF2C91DE),
+                            unfocusedBorderColor = Color(0xFF2C91DE),
+                            focusedContainerColor = Color(0x65AEDCFF),
+                            unfocusedContainerColor = Color(0x65AEDCFF)
+                        ),
                     )
                     Spacer(modifier = Modifier .height(24.dp))
                     OutlinedTextField(
@@ -242,9 +270,10 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                             onClick = {
                                 val cliente = CadastroUser(
                                     id_user = 0,
+                                    nome_user = nameState.value,
                                     email = emailState.value,
                                     senha = senhaState.value,
-                                    id_tipo = 1,
+                                    id_tipo = 3,
                                 )
 
                                 Log.i("Cadastro", " Enviando dados para API: $cliente")

@@ -63,6 +63,7 @@ import com.example.tccbebe.R
 import com.example.tccbebe.model.RegistroBebe
 import com.example.tccbebe.model.RegistroResp
 import com.example.tccbebe.service.Conexao
+import com.example.tccbebe.service.AuthenticatedConexao
 import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -131,7 +132,7 @@ fun CadastroBebe(navegacao: NavHostController?) {
     val expandedSangue = remember { mutableStateOf(false) }
     val selectSangue = remember { mutableStateOf("") }
 
-    val clienteApi = Conexao().getRegistroBebeService()
+    val clienteApi = AuthenticatedConexao(context).getRegistroBebeService()
 
 
     Box(modifier = Modifier
@@ -657,14 +658,14 @@ fun CadastroBebe(navegacao: NavHostController?) {
                                                     cartao_medico = CSCState.value,
                                                     idSexo = selectedOptionId.value ?: 0,
                                                     idSangue = selectedOptionSanId.value ?: 0,
-                                                    id_user = idUser
+
                                                 )
 
                                                 val response = clienteApi.cadastroBabe(cliente).await()
                                                 Log.i("API_CADASTRO", "Resposta: $response")
 
                                                 withContext(Dispatchers.Main) {
-                                                    navegacao?.navigate("login")
+                                                    navegacao?.navigate("home")
                                                 }
 
                                             } catch (e: Exception) {

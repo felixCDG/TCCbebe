@@ -18,34 +18,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.tccbebe.screens.EventoDialog
+import com.example.senai.sp.testecalendario.viewmodel.CalendarioViewModel
 import java.time.LocalDate
-import java.util.*
+import kotlin.text.isNotEmpty
+import kotlin.text.toInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventoDialog(
-    onDismiss: () -> Unit,
-    onSalvar: (Evento) -> Unit
+fun EventoDialogComApi(
+    viewModel: CalendarioViewModel,
+    dataSelecionada: LocalDate = LocalDate.now(),
+    onDismiss: () -> Unit
 ) {
-    var dia by remember { mutableStateOf("") }
-    var mes by remember { mutableStateOf("") }
-    var ano by remember { mutableStateOf("") }
+    var dia by remember { mutableStateOf(dataSelecionada.dayOfMonth.toString()) }
+    var mes by remember { mutableStateOf(dataSelecionada.monthValue.toString()) }
+    var ano by remember { mutableStateOf(dataSelecionada.year.toString()) }
     var hora by remember { mutableStateOf("12:00") }
     var titulo by remember { mutableStateOf("") }
-    var nota by remember { mutableStateOf("") }
+    var descricao by remember { mutableStateOf("") }
     var alarme by remember { mutableStateOf(false) }
-    var corSelecionada by remember { mutableStateOf(Color(0xFFE57373)) }
+    var corSelecionada by remember { mutableStateOf("#E57373") }
+    var showError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     val coresDisponiveis = listOf(
-        Color(0xFFE57373), // Vermelho
-        Color(0xFFFFB74D), // Laranja
-        Color(0xFFFFF176), // Amarelo
-        Color(0xFF81C784), // Verde
-        Color(0xFF64B5F6), // Azul
-        Color(0xFF9575CD), // Roxo
-        Color(0xFFBA68C8), // Rosa
-        Color(0xFF4FC3F7)  // Ciano
+        "#E57373", // Vermelho
+        "#FFB74D", // Laranja
+        "#FFF176", // Amarelo
+        "#81C784", // Verde
+        "#64B5F6", // Azul
+        "#9575CD", // Roxo
+        "#BA68C8", // Rosa
+        "#4FC3F7"  // Ciano
     )
 
     Dialog(onDismissRequest = onDismiss) {
@@ -146,7 +150,10 @@ fun EventoDialog(
                                 Box(
                                     modifier = Modifier
                                         .size(24.dp)
-                                        .background(cor, CircleShape)
+                                        .background(
+                                            Color(android.graphics.Color.parseColor(cor)),
+                                            CircleShape
+                                        )
                                         .border(
                                             width = if (cor == corSelecionada) 2.dp else 0.dp,
                                             color = Color.White,
@@ -204,15 +211,15 @@ fun EventoDialog(
 
                 // Nota
                 Text(
-                    text = "Nota",
+                    text = "descricao",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = nota,
-                    onValueChange = { nota = it },
+                    value = descricao,
+                    onValueChange = { descricao = it },
                     placeholder = { Text("Descreva o evento") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -257,16 +264,22 @@ fun EventoDialog(
                     onClick = {
                         if (titulo.isNotEmpty() && dia.isNotEmpty() && mes.isNotEmpty() && ano.isNotEmpty()) {
                             val data = LocalDate.of(ano.toInt(), mes.toInt(), dia.toInt())
-                            val novoEvento = Evento(
-                                id = UUID.randomUUID().toString(),
+
+                            viewModel.criarEvento(
                                 titulo = titulo,
-                                nota = nota,
+                                descricao = descricao,
                                 data = data,
                                 hora = hora,
                                 cor = corSelecionada,
-                                alarme = alarme
+                                alarme = alarme,
+                                onSuccess = {
+                                    onDismiss()
+                                },
+                                onError = { error ->
+                                    errorMessage = error
+                                    showError = true
+                                }
                             )
-                            onSalvar(novoEvento)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -280,6 +293,15 @@ fun EventoDialog(
                         color = Color(0xFF7986CB),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
+                    )
+                }
+
+                if (showError) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        fontSize = 12.sp
                     )
                 }
             }

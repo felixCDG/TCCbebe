@@ -20,6 +20,7 @@ import com.example.tccbebe.screens.CadastroResponsavel
 import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.CalendarioScreen
 import com.example.tccbebe.screens.CriarConta
+import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
 import com.example.tccbebe.ui.theme.TCCBEBETheme
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
                composable(route = "cadastroB"){ CadastroBebe(navegacao) }
                composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
                composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
+               composable(route = "home",) { HomeScreen(navegacao = navegacao) }
             }
 
         }

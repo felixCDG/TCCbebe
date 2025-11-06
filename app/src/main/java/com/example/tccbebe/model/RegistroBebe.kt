@@ -14,6 +14,5 @@ data class RegistroBebe(
     val cartao_medico: String = "",
     @SerializedName("id_sexo") var idSexo: Int = 0,
     @SerializedName("id_sangue") var idSangue: Int = 0,
-    val id_user: Int = 0
 
 )

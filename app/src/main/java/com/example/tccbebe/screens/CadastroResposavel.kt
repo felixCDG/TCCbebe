@@ -70,6 +70,7 @@ import com.example.tccbebe.R
 import com.example.tccbebe.model.CadastroUser
 import com.example.tccbebe.model.RegistroResp
 import com.example.tccbebe.service.Conexao
+import com.example.tccbebe.service.AuthenticatedConexao
 import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -124,7 +125,7 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
         mutableStateOf("")
     }
 
-    val clienteApi = Conexao().getRegistroRspService()
+    val clienteApi = AuthenticatedConexao(context).getRegistroRspService()
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -492,7 +493,7 @@ fun CadastroResponsavel(navegacao: NavHostController?) {
                                                 SessionManager.saveResponsavelId(context, response.data.id_responsavel)
 
                                                 withContext(Dispatchers.Main) {
-                                                    navegacao?.navigate("perfilResp")
+                                                    navegacao?.navigate("cadastroB")
                                                 }
 
                                             } catch (e: Exception) {

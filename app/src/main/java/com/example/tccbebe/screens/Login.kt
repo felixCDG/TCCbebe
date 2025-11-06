@@ -185,9 +185,10 @@ fun Loginscreen(navegacao: NavHostController?) {
                                         Log.i("API_CADASTRO", "Resposta completa: $loginUsuario")
 
                                         SessionManager.saveUserId(context, loginUsuario.data?.id_user ?: 0)
+                                        SessionManager.saveAuthToken(context, loginUsuario.token)
 
                                         withContext(Dispatchers.Main) {
-                                            navegacao?.navigate("cadastroR")
+                                            navegacao?.navigate("cadastroB")
                                         }
 
                                     } catch (e: Exception) {
