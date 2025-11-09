@@ -66,15 +66,24 @@ fun Loginscreen(navegacao: NavHostController?) {
     var emailState = remember { mutableStateOf("") }
     var senhaState = remember { mutableStateOf("") }
     var passwordVisible = remember { mutableStateOf(false) }
+    var emailError = remember { mutableStateOf("") }
+    var showEmailError = remember { mutableStateOf(false) }
     
     val clienteApi = Conexao().getLoginService()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    
+    // Função para validar email
+    fun validateEmail(email: String): String {
+        return when {
+            email.length < 10 -> "Email deve ter pelo menos 10 caracteres"
+            !email.endsWith("@gmail.com") -> "Email deve terminar com @gmail.com"
+            else -> ""
+        }
+    }
 
     Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+        modifier = Modifier.fillMaxSize()
     ) {
         // Lado esquerdo - Formulário de login
         Column(
@@ -135,7 +144,12 @@ fun Loginscreen(navegacao: NavHostController?) {
             // Campo de Email
             OutlinedTextField(
                 value = emailState.value,
-                onValueChange = { emailState.value = it },
+                onValueChange = { 
+                    emailState.value = it
+                    val error = validateEmail(it)
+                    emailError.value = error
+                    showEmailError.value = error.isNotEmpty()
+                },
                 placeholder = { Text("EMAIL", color = Color.Gray, fontSize = 12.sp) },
                 leadingIcon = {
                     Icon(
@@ -144,15 +158,29 @@ fun Loginscreen(navegacao: NavHostController?) {
                         tint = Color(0xff081C60)
                     )
                 },
+                isError = showEmailError.value,
+                singleLine = true,
+                maxLines = 1,
                 modifier = Modifier
                     .width(350.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(25.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray
+                    focusedBorderColor = if (showEmailError.value) Color.Red else Color.Gray,
+                    unfocusedBorderColor = if (showEmailError.value) Color.Red else Color.Gray,
+                    errorBorderColor = Color.Red
                 )
             )
+            
+            // Mostrar erro do email se houver
+            if (showEmailError.value) {
+                Text(
+                    text = emailError.value,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -177,6 +205,8 @@ fun Loginscreen(navegacao: NavHostController?) {
                         )
                     }
                 },
+                singleLine = true,
+                maxLines = 1,
                 visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier
                     .width(350.dp)
@@ -215,6 +245,14 @@ fun Loginscreen(navegacao: NavHostController?) {
             // Botão LOGAR
             Button(
                 onClick = {
+                    // Validar email antes de enviar
+                    val emailValidation = validateEmail(emailState.value)
+                    if (emailValidation.isNotEmpty()) {
+                        emailError.value = emailValidation
+                        showEmailError.value = true
+                        return@Button
+                    }
+                    
                     val cliente = Login(
                         email = emailState.value,
                         senha = senhaState.value,
@@ -235,7 +273,7 @@ fun Loginscreen(navegacao: NavHostController?) {
                                 SessionManager.saveAuthToken(context, loginUsuario.token)
 
                                 withContext(Dispatchers.Main) {
-                                    navegacao?.navigate("cadastroB")
+                                    navegacao?.navigate("cadastroR")
                                 }
                             } else {
                                 Log.e("API_LOGIN", "Erro na resposta: ${response.errorBody()?.string()}")
@@ -265,7 +303,7 @@ fun Loginscreen(navegacao: NavHostController?) {
         Box(
             modifier = Modifier
                 .weight(1.2f)
-                .fillMaxHeight()
+                .fillMaxSize()
         ) {
             // Canvas para desenhar a forma curva
             Canvas(
@@ -274,26 +312,32 @@ fun Loginscreen(navegacao: NavHostController?) {
                 val path = Path().apply {
                     val width = size.width
                     val height = size.height
-                    val curveDepth = 100f // Profundidade da curva
+                    val curveDepth = 100f
                     
-                    // Começar do canto superior esquerdo
+                    // Começar do canto superior esquerdo (topo da tela)
                     moveTo(0f, 0f)
                     
-                    // Linha até o meio com curva
-                    lineTo(curveDepth, height * 0.3f)
+                    // Linha até o topo direito
+                    lineTo(width, 0f)
+                    
+                    // Linha até o fundo direito
+                    lineTo(width, height)
+                    
+                    // Linha até o fundo esquerdo
+                    lineTo(0f, height)
+                    
+                    // Linha até o meio com curva (subindo)
+                    lineTo(curveDepth, height * 0.7f)
                     
                     // Curva suave no meio
                     quadraticBezierTo(
-                        curveDepth + 40f, height * 0.5f, // Ponto de controle
-                        curveDepth, height * 0.7f        // Ponto final
+                        curveDepth + 40f, height * 0.5f,
+                        curveDepth, height * 0.3f
                     )
                     
-                    // Linha até o canto inferior esquerdo
-                    lineTo(0f, height)
+                    // Linha até o topo esquerdo
+                    lineTo(0f, 0f)
                     
-                    // Fechar o caminho pelos cantos direitos
-                    lineTo(width, height)
-                    lineTo(width, 0f)
                     close()
                 }
                 
@@ -307,8 +351,7 @@ fun Loginscreen(navegacao: NavHostController?) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 37.dp)
-                    .padding(top = 70.dp),
+                    .padding(start = 37.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

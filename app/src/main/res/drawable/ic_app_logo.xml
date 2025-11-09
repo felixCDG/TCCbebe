@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background circle -->
+    <path
+        android:fillColor="#708EF1"
+        android:pathData="M0,0h108v108h-108z"/>
+    
+    <!-- Inner circle for logo -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-45,0a45,45 0,1 1,90 0a45,45 0,1 1,-90 0"/>
+    
+    <!-- Baby icon representation -->
+    <group android:translateX="54" android:translateY="54">
+        <!-- Head -->
+        <path
+            android:fillColor="#708EF1"
+            android:pathData="M0,-20m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+        
+        <!-- Body -->
+        <path
+            android:fillColor="#708EF1"
+            android:pathData="M-8,-8L8,-8L8,15L-8,15Z"/>
+        
+        <!-- Arms -->
+        <path
+            android:fillColor="#708EF1"
+            android:pathData="M-15,-5L-8,-5L-8,5L-15,5Z"/>
+        <path
+            android:fillColor="#708EF1"
+            android:pathData="M8,-5L15,-5L15,5L8,5Z"/>
+        
+        <!-- Legs -->
+        <path
+            android:fillColor="#708EF1"
+            android:pathData="M-5,15L-5,25L-2,25L-2,15Z"/>
+        <path
+            android:fillColor="#708EF1"
+            android:pathData="M2,15L2,25L5,25L5,15Z"/>
+    </group>
+</vector>

@@ -1,14 +1,14 @@
 package com.example.tccbebe.screens
 
-import android.R.attr.id
-import androidx.compose.foundation.Image
+import android.util.Log
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,19 +16,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -38,22 +36,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import android.util.Log
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,267 +55,435 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.await
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun Cadastroscreen(navegacao: NavHostController?) {
-
-
-    var expandedTipoId by remember { mutableStateOf(false) }
-    var selectTipoId by remember { mutableStateOf("") }
-    val selectedTipoIddrop = remember { mutableStateOf(0) }
-
-    var nameState = remember {
-        mutableStateOf("")
-    }
-    var emailState = remember {
-        mutableStateOf("")
-    }
-    var senhaState = remember {
-        mutableStateOf("")
-    }
-    var CsenhaState = remember {
-        mutableStateOf("")
-    }
-
-
-    var mensagem by remember { mutableStateOf("") }
-    var isErro by remember { mutableStateOf(false) }
-
+    var nameState = remember { mutableStateOf("") }
+    var emailState = remember { mutableStateOf("") }
+    var senhaState = remember { mutableStateOf("") }
+    var CsenhaState = remember { mutableStateOf("") }
+    var passwordVisible = remember { mutableStateOf(false) }
+    var confirmPasswordVisible = remember { mutableStateOf(false) }
+    var emailError = remember { mutableStateOf("") }
+    var showEmailError = remember { mutableStateOf(false) }
+    var passwordError = remember { mutableStateOf("") }
+    var showPasswordError = remember { mutableStateOf(false) }
+    
     val clienteApi = Conexao().getCadastroService()
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xFFAEDCFF))) {
-
-        Column (
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Image(
-                painter = painterResource(R.drawable.logocerta),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(200.dp),
-
-                )
+    val context = LocalContext.current
+    
+    // Função para capitalizar nome (primeira letra de cada palavra)
+    fun capitalizeName(name: String): String {
+        return name.split(" ")
+            .joinToString(" ") { word ->
+                if (word.isNotEmpty()) {
+                    word.lowercase().replaceFirstChar { it.uppercase() }
+                } else {
+                    word
+                }
+            }
+    }
+    
+    // Função para validar email
+    fun validateEmail(email: String): String {
+        return when {
+            email.length < 10 -> "Email deve ter pelo menos 10 caracteres"
+            !email.endsWith("@gmail.com") -> "Email deve terminar com @gmail.com"
+            else -> ""
         }
-        Column (
+    }
+    
+    // Função para validar se as senhas coincidem
+    fun validatePasswordMatch(password: String, confirmPassword: String): String {
+        return if (confirmPassword.isNotEmpty() && password != confirmPassword) {
+            "As senhas não coincidem"
+        } else {
+            ""
+        }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Lado esquerdo - Seção azul "Já possui conta?"
+        Box(
             modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom
+                .weight(1.2f)
+                .fillMaxHeight()
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(715.dp),
-                shape = CurvedTopShape(),// aplica o shape
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFFFFFFF)
-                )
+            // Canvas para desenhar a forma curva
+            Canvas(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column (
+                val path = Path().apply {
+                    val width = size.width
+                    val height = size.height
+                    val curveDepth = 100f
+                    
+                    // Começar do canto superior esquerdo (topo da tela)
+                    moveTo(0f, 0f)
+                    
+                    // Linha até o topo direito
+                    lineTo(width, 0f)
+                    
+                    // Linha até o meio com curva
+                    lineTo(width - curveDepth, height * 0.3f)
+                    
+                    // Curva suave no meio
+                    quadraticBezierTo(
+                        width - curveDepth - 40f, height * 0.5f,
+                        width - curveDepth, height * 0.7f
+                    )
+                    
+                    // Linha até o canto inferior direito
+                    lineTo(width, height)
+                    
+                    // Fechar o caminho pelos cantos esquerdos
+                    lineTo(0f, height)
+                    close()
+                }
+                
+                drawPath(
+                    path = path,
+                    color = androidx.compose.ui.graphics.Color(0xFF708EF1)
+                )
+            }
+            
+            // Conteúdo da coluna
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(end = 37.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Já possui\nconta?",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 32.sp
+                )
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                Text(
+                    text = "Para se manter\nconectado com a\ngente faça login",
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 22.sp
+                )
+                
+                Spacer(modifier = Modifier.height(40.dp))
+                
+                // Botão Conecte-se
+                OutlinedButton(
+                    onClick = {
+                        navegacao?.navigate("login")
+                    },
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White),
+                    shape = RoundedCornerShape(25.dp),
                     modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxSize(),
-                ){
-                    Row (modifier = Modifier .fillMaxWidth() .padding(20.dp) .padding(top = 50.dp)){
-                        IconButton(
-                            onClick = {
-                                navegacao?.navigate("login")
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = ""
-                            )
-                        }
-                        Spacer(modifier = Modifier ,)
-                        Text(
-                            modifier = Modifier
-                                .padding(top = 12.dp),
-                            text = "Volte para o login",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    }
+                        .width(130.dp)
+                        .height(50.dp)
+                ) {
                     Text(
-                        text = "Cadastre-se",
-                        color = Color.Black,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 44.sp
+                        text = "Conecte-se",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
                     )
-                    Spacer(modifier = Modifier .height(24.dp))
-                    OutlinedTextField(
-                        value = nameState.value,
-                        onValueChange = {
-                            nameState.value = it
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(30.dp),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = "Nome"
-                            )
-                        },
-                        label = {
-                            Text("Nome")
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF2C91DE),
-                            unfocusedBorderColor = Color(0xFF2C91DE),
-                            focusedContainerColor = Color(0x65AEDCFF),
-                            unfocusedContainerColor = Color(0x65AEDCFF)
-                        ),
-                    )
-                    Spacer(modifier = Modifier .height(24.dp))
-                    OutlinedTextField(
-                        value = emailState.value,
-                        onValueChange = {
-                            emailState.value = it
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(30.dp),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = "Email"
-                            )
-                        },
-                        label = {
-                            Text("Email")
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF2C91DE),
-                            unfocusedBorderColor = Color(0xFF2C91DE),
-                            focusedContainerColor = Color(0x65AEDCFF),
-                            unfocusedContainerColor = Color(0x65AEDCFF)
-                        ),
-                    )
-                    Spacer(modifier = Modifier .height(24.dp))
-                    OutlinedTextField(
-                        value = senhaState.value,
-                        onValueChange = {
-                            senhaState.value = it
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(30.dp),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Senha"
-                            )
-                        },
-                        label = {
-                            Text("Senha")
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF2C91DE),
-                            unfocusedBorderColor = Color(0xFF2C91DE),
-                            focusedContainerColor = Color(0x65AEDCFF),
-                            unfocusedContainerColor = Color(0x65AEDCFF)
-                        ),
-                    )
-                    Spacer(modifier = Modifier .height(24.dp))
-                    OutlinedTextField(
-                        value = CsenhaState.value,
-                        onValueChange = {
-                            CsenhaState.value = it
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(30.dp),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Confirma senha"
-                            )
-                        },
-                        label = {
-                            Text("Comfirma senha")
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF2C91DE),
-                            unfocusedBorderColor = Color(0xFF2C91DE),
-                            focusedContainerColor = Color(0x65AEDCFF),
-                            unfocusedContainerColor = Color(0x65AEDCFF)
-                        ),
-                    )
-
-                    Spacer( modifier = Modifier .height(44.dp))
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        val context = LocalContext.current
-
-                        Button(
-                            onClick = {
-                                val cliente = CadastroUser(
-                                    id_user = 0,
-                                    nome_user = nameState.value,
-                                    email = emailState.value,
-                                    senha = senhaState.value,
-                                    id_tipo = 3,
-                                )
-
-                                Log.i("Cadastro", " Enviando dados para API: $cliente")
-
-
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    try {
-                                        val response = clienteApi.cadastrarUsuario(cliente).await()
-
-                                        // Exibe tudo no Logcat
-                                        Log.i("API_CADASTRO", "Resposta completa: $response")
-                                        Log.i("API_CADASTRO", "Mensagem: ${response.message}")
-                                        Log.i("API_CADASTRO", "ID do usuário: ${response.data.id_user}")
-
-                                        // Salva o ID para usar depois
-                                        SessionManager.saveUserId(context = context, userId = response.data.id_user)
-
-                                    } catch (e: Exception) {
-                                        Log.e("API_CADASTRO", "Erro ao cadastrar: ${e.message}")
-                                    }
-                                }
-                                navegacao?.navigate("login")
-                            },
-                            colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
-                            shape = RoundedCornerShape(30.dp),
-                            modifier = Modifier
-                                .width(270.dp)
-                                .border(
-                                    width = 2.dp, // 👈 tamanho da borda
-                                    color = Color(0xFF2C91DE),
-                                    shape = RoundedCornerShape(38.dp)
-                                ),
-                        ) {
-                            Text(
-                                text = "CADASTRAR",
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        }
-                        Spacer( modifier = Modifier .height(3.dp))
-
-                    }
                 }
             }
         }
+        
+        // Lado direito - Formulário de cadastro
+        Column(
+            modifier = Modifier
+                .weight(1.4f)
+                .fillMaxSize()
+                .padding(end = 10.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Título "CADASTRE-SE"
+            Text(
+                text = "CADASTRE-\nSE",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                lineHeight = 38.sp
+            )
+            
+            Spacer(modifier = Modifier.height(40.dp))
+            
+            // Botão "Continue com o Google"
+            OutlinedButton(
+                onClick = { /* Implementar login com Google */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_google),
+                    contentDescription = "Google",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Continue com o Google",
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Texto "ou cadastre seu email"
+            Text(
+                text = "ou cadastre seu email",
+                fontSize = 12.sp,
+                color = Color(0xff081C60),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Campo de Nome
+            OutlinedTextField(
+                value = nameState.value,
+                onValueChange = { nameState.value = capitalizeName(it) },
+                placeholder = { Text("NOME COMPLETO", color = Color.Gray, fontSize = 12.sp) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = "Nome",
+                        tint = Color(0xff081C60)
+                    )
+                },
+                singleLine = true,
+                maxLines = 1,
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Gray,
+                    unfocusedBorderColor = Color.Gray
+                )
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Campo de Email
+            OutlinedTextField(
+                value = emailState.value,
+                onValueChange = { 
+                    emailState.value = it
+                    val error = validateEmail(it)
+                    emailError.value = error
+                    showEmailError.value = error.isNotEmpty()
+                },
+                placeholder = { Text("EMAIL", color = Color.Gray, fontSize = 12.sp) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Email,
+                        contentDescription = "Email",
+                        tint = Color(0xff081C60)
+                    )
+                },
+                singleLine = true,
+                maxLines = 1,
+                isError = showEmailError.value,
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = if (showEmailError.value) Color.Red else Color.Gray,
+                    unfocusedBorderColor = if (showEmailError.value) Color.Red else Color.Gray,
+                    errorBorderColor = Color.Red
+                )
+            )
+            
+            // Mostrar erro do email se houver
+            if (showEmailError.value) {
+                Text(
+                    text = emailError.value,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Campo de Senha
+            OutlinedTextField(
+                value = senhaState.value,
+                onValueChange = { 
+                    senhaState.value = it
+                    // Revalidar confirmação de senha se já foi digitada
+                    if (CsenhaState.value.isNotEmpty()) {
+                        val error = validatePasswordMatch(it, CsenhaState.value)
+                        passwordError.value = error
+                        showPasswordError.value = error.isNotEmpty()
+                    }
+                },
+                placeholder = { Text("SENHA", color = Color.Gray, fontSize = 12.sp) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Lock,
+                        contentDescription = "Senha",
+                        tint = Color(0xff081C60)
+                    )
+                },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                        Icon(
+                            if (passwordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (passwordVisible.value) "Ocultar senha" else "Mostrar senha",
+                            tint = Color(0xff081C60)
+                        )
+                    }
+                },
+                singleLine = true,
+                maxLines = 1,
+                visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Gray,
+                    unfocusedBorderColor = Color.Gray
+                )
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Campo de Confirmar Senha
+            OutlinedTextField(
+                value = CsenhaState.value,
+                onValueChange = { 
+                    CsenhaState.value = it
+                    val error = validatePasswordMatch(senhaState.value, it)
+                    passwordError.value = error
+                    showPasswordError.value = error.isNotEmpty()
+                },
+                placeholder = { Text("CONFIRMAR SENHA", color = Color.Gray, fontSize = 12.sp) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Lock,
+                        contentDescription = "Confirmar Senha",
+                        tint = Color(0xff081C60)
+                    )
+                },
+                trailingIcon = {
+                    IconButton(onClick = { confirmPasswordVisible.value = !confirmPasswordVisible.value }) {
+                        Icon(
+                            if (confirmPasswordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (confirmPasswordVisible.value) "Ocultar senha" else "Mostrar senha",
+                            tint = Color(0xff081C60)
+                        )
+                    }
+                },
+                isError = showPasswordError.value,
+                singleLine = true,
+                maxLines = 1,
+                visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = if (showPasswordError.value) Color.Red else Color.Gray,
+                    unfocusedBorderColor = if (showPasswordError.value) Color.Red else Color.Gray,
+                    errorBorderColor = Color.Red
+                )
+            )
+            
+            // Mostrar erro da senha se houver
+            if (showPasswordError.value) {
+                Text(
+                    text = passwordError.value,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(30.dp))
+            
+            // Botão CADASTRAR
+            Button(
+                onClick = {
+                    // Validar email antes de enviar
+                    val emailValidation = validateEmail(emailState.value)
+                    if (emailValidation.isNotEmpty()) {
+                        emailError.value = emailValidation
+                        showEmailError.value = true
+                        return@Button
+                    }
+                    
+                    // Validar se as senhas coincidem
+                    val passwordValidation = validatePasswordMatch(senhaState.value, CsenhaState.value)
+                    if (passwordValidation.isNotEmpty()) {
+                        passwordError.value = passwordValidation
+                        showPasswordError.value = true
+                        return@Button
+                    }
+                    
+                    val cliente = CadastroUser(
+                        id_user = 0,
+                        nome_user = nameState.value,
+                        email = emailState.value,
+                        senha = senhaState.value,
+                        id_tipo = 1,
+                    )
+
+                    Log.i("Cadastro", " Enviando dados para API: $cliente")
+
+                    GlobalScope.launch(Dispatchers.IO) {
+                        try {
+                            val response = clienteApi.cadastrarUsuario(cliente).await()
+
+                            Log.i("API_CADASTRO", "Resposta completa: $response")
+                            Log.i("API_CADASTRO", "Mensagem: ${response.message}")
+                            Log.i("API_CADASTRO", "ID do usuário: ${response.data.id_user}")
+
+                            SessionManager.saveUserId(context = context, userId = response.data.id_user)
+
+                        } catch (e: Exception) {
+                            Log.e("API_CADASTRO", "Erro ao cadastrar: ${e.message}")
+                        }
+                    }
+                    navegacao?.navigate("login")
+                },
+                colors = ButtonDefaults.buttonColors(Color(0xFF708EF1)),
+                shape = RoundedCornerShape(25.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Text(
+                    text = "Cadastrar",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
     }
-
-
-
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun CadastroscreenPreview() {
     Cadastroscreen(navegacao = null)

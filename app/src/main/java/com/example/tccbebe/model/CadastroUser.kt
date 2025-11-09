@@ -8,6 +8,6 @@ data class CadastroUser(
     val nome_user: String,
     val email: String ,
     val senha: String ,
-    val id_tipo: Int = 3,
+    val id_tipo: Int =1,
 
     )

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Gradient background circle -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:startColor="#708EF1"
+                android:centerColor="#9BB5FF"
+                android:endColor="#E3F2FD"
+                android:type="radial"
+                android:gradientRadius="54dp"/>
+            <size android:width="108dp" android:height="108dp"/>
+        </shape>
+    </item>
+    
+    <!-- Inner white circle for logo -->
+    <item android:top="8dp" android:bottom="8dp" android:left="8dp" android:right="8dp">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF"/>
+            <stroke android:width="2dp" android:color="#F0F8FF"/>
+        </shape>
+    </item>
+    
+    <!-- Logo image centered -->
+    <item android:top="24dp" android:bottom="24dp" android:left="24dp" android:right="24dp">
+        <bitmap 
+            android:src="@drawable/logocerta"
+            android:gravity="center"
+            android:antialias="true"
+            android:filter="true"/>
+    </item>
+    
+</layer-list>

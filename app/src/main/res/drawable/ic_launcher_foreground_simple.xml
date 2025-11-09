@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Simple version - just the logo in a circle -->
+    <group android:scaleX="0.8"
+           android:scaleY="0.8"
+           android:pivotX="54"
+           android:pivotY="54">
+        
+        <!-- White circle background with subtle shadow -->
+        <path
+            android:fillColor="#F5F5F5"
+            android:pathData="M54,54m-38,0a38,38 0,1 1,76 0a38,38 0,1 1,-76 0"/>
+        
+        <!-- Main white circle -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,54m-36,0a36,36 0,1 1,72 0a36,36 0,1 1,-72 0"/>
+        
+        <!-- Logo placeholder - this will represent your logocerta.png -->
+        <!-- Since we can't directly use PNG in vector, we'll create a simplified representation -->
+        <group android:translateX="54" android:translateY="54" android:scaleX="0.7" android:scaleY="0.7">
+            
+            <!-- This represents the main elements of your logo -->
+            <!-- You can replace this with the actual logo converted to vector format -->
+            
+            <!-- Main logo area -->
+            <path
+                android:fillColor="#708EF1"
+                android:pathData="M-20,-20 L20,-20 L20,20 L-20,20 Z"
+                android:fillAlpha="0.1"/>
+            
+            <!-- Logo content representation -->
+            <path
+                android:fillColor="#708EF1"
+                android:pathData="M0,-15m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+            
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M0,-15m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0"/>
+            
+            <!-- Text area -->
+            <path
+                android:fillColor="#708EF1"
+                android:pathData="M-15,5 L15,5 L15,15 L-15,15 Z"/>
+            
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M-12,7 L12,7 L12,13 L-12,13 Z"/>
+        </group>
+        
+        <!-- Subtle border -->
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#E0E0E0"
+            android:strokeWidth="1"
+            android:pathData="M54,54m-36,0a36,36 0,1 1,72 0a36,36 0,1 1,-72 0"/>
+    </group>
+</vector>

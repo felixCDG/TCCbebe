@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Baby angel icon based on the uploaded image -->
+    <group android:scaleX="0.8"
+           android:scaleY="0.8"
+           android:pivotX="54"
+           android:pivotY="54">
+        
+        <!-- White circle background -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0"/>
+        
+        <!-- Baby angel illustration -->
+        <group android:translateX="54" android:translateY="54">
+            
+            <!-- Wings -->
+            <group android:translateY="-8">
+                <!-- Left wing -->
+                <path
+                    android:fillColor="#F0F8FF"
+                    android:pathData="M-25,-5 Q-30,-10 -25,-15 Q-20,-12 -18,-8 Q-20,-5 -25,-5 Z"/>
+                <path
+                    android:fillColor="#E6F3FF"
+                    android:pathData="M-23,-7 Q-26,-10 -23,-13 Q-20,-11 -19,-9 Q-20,-7 -23,-7 Z"/>
+                
+                <!-- Right wing -->
+                <path
+                    android:fillColor="#F0F8FF"
+                    android:pathData="M25,-5 Q30,-10 25,-15 Q20,-12 18,-8 Q20,-5 25,-5 Z"/>
+                <path
+                    android:fillColor="#E6F3FF"
+                    android:pathData="M23,-7 Q26,-10 23,-13 Q20,-11 19,-9 Q20,-7 23,-7 Z"/>
+            </group>
+            
+            <!-- Baby head -->
+            <path
+                android:fillColor="#FFDBAC"
+                android:pathData="M0,-15m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+            
+            <!-- Hair -->
+            <path
+                android:fillColor="#D4A574"
+                android:pathData="M0,-27 Q-8,-25 -10,-18 Q-8,-20 -5,-22 Q0,-24 5,-22 Q8,-20 10,-18 Q8,-25 0,-27 Z"/>
+            
+            <!-- Eyes -->
+            <path
+                android:fillColor="#2C2C2C"
+                android:pathData="M-4,-18m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"/>
+            <path
+                android:fillColor="#2C2C2C"
+                android:pathData="M4,-18m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"/>
+            
+            <!-- Eye highlights -->
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M-4,-19m-0.8,0a0.8,0.8 0,1 1,1.6 0a0.8,0.8 0,1 1,-1.6 0"/>
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M4,-19m-0.8,0a0.8,0.8 0,1 1,1.6 0a0.8,0.8 0,1 1,-1.6 0"/>
+            
+            <!-- Nose -->
+            <path
+                android:fillColor="#FFB366"
+                android:pathData="M0,-12m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"/>
+            
+            <!-- Mouth (smile) -->
+            <path
+                android:fillColor="@android:color/transparent"
+                android:strokeColor="#D4A574"
+                android:strokeWidth="1.5"
+                android:strokeLineCap="round"
+                android:pathData="M-3,-8 Q0,-6 3,-8"/>
+            
+            <!-- Baby body -->
+            <path
+                android:fillColor="#FFDBAC"
+                android:pathData="M0,-3 Q-8,-3 -8,8 Q-8,15 0,15 Q8,15 8,8 Q8,-3 0,-3 Z"/>
+            
+            <!-- Arms -->
+            <path
+                android:fillColor="#FFDBAC"
+                android:pathData="M-8,2 Q-12,0 -15,3 Q-12,6 -8,5 Z"/>
+            <path
+                android:fillColor="#FFDBAC"
+                android:pathData="M8,2 Q12,0 15,3 Q12,6 8,5 Z"/>
+            
+            <!-- Legs -->
+            <path
+                android:fillColor="#FFDBAC"
+                android:pathData="M-3,15 Q-3,20 -1,22 Q1,20 3,22 Q3,20 3,15 Z"/>
+            
+            <!-- Diaper -->
+            <path
+                android:fillColor="#87CEEB"
+                android:pathData="M-6,8 L6,8 L6,15 L-6,15 Z"/>
+            
+            <!-- Diaper details -->
+            <path
+                android:fillColor="#6BB6FF"
+                android:pathData="M-4,10 L4,10 L4,13 L-4,13 Z"/>
+            
+            <!-- Halo -->
+            <path
+                android:fillColor="@android:color/transparent"
+                android:strokeColor="#FFD700"
+                android:strokeWidth="2"
+                android:pathData="M0,-30m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0"/>
+            
+            <!-- Halo glow -->
+            <path
+                android:fillColor="#FFD700"
+                android:fillAlpha="0.3"
+                android:pathData="M0,-30m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0"/>
+        </group>
+        
+        <!-- Decorative stars around -->
+        <path
+            android:fillColor="#FFD700"
+            android:pathData="M20,20 L22,25 L27,25 L23,28 L25,33 L20,30 L15,33 L17,28 L13,25 L18,25 Z"/>
+        
+        <path
+            android:fillColor="#FFD700"
+            android:pathData="M85,25 L86,28 L89,28 L87,30 L88,33 L85,31 L82,33 L83,30 L81,28 L84,28 Z"/>
+        
+        <path
+            android:fillColor="#FFD700"
+            android:pathData="M25,85 L26,88 L29,88 L27,90 L28,93 L25,91 L22,93 L23,90 L21,88 L24,88 Z"/>
+        
+        <!-- Subtle border -->
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#E8E8E8"
+            android:strokeWidth="1"
+            android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0"/>
+    </group>
+</vector>

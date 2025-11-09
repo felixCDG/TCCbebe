@@ -14,15 +14,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import com.example.tccbebe.screens.Bemvindo
 import com.example.tccbebe.screens.CadastroBebe
-import com.example.tccbebe.screens.CadastroResponsavel
+import com.example.tccbebe.screens.CadastroBebeNovo
+import com.example.tccbebe.screens.CadastroResponsavelNovo
 import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.CalendarioScreen
 import com.example.tccbebe.screens.CriarConta
 import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
+import com.example.tccbebe.screens.SplashScreen
 import com.example.tccbebe.ui.theme.TCCBEBETheme
 
 class MainActivity : ComponentActivity() {
@@ -34,14 +39,23 @@ class MainActivity : ComponentActivity() {
             val navegacao = rememberNavController()
             NavHost(
                 navController = navegacao,
-                startDestination = "criarconta"
+                startDestination = "splash"
             ){
+               composable(route = "splash"){ SplashScreen(navegacao) }
                composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
-               composable(route = "login"){ Loginscreen(navegacao) }
-               composable(route = "cadastro"){ Cadastroscreen(navegacao) }
-               composable(route = "cadastroR"){ CadastroResponsavel(navegacao) }
-               composable(route = "cadastroB"){ CadastroBebe(navegacao) }
+               composable(
+                   route = "login",
+                   enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { -it }) },
+                   exitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { -it }) }
+               ){ Loginscreen(navegacao) }
+               composable(
+                   route = "cadastro",
+                   enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { it }) },
+                   exitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { it }) }
+               ){ Cadastroscreen(navegacao) }
+               composable(route = "cadastroR"){ CadastroResponsavelNovo(navegacao) }
+               composable(route = "cadastroB"){ CadastroBebeNovo(navegacao) }
                composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
                composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
                composable(route = "home",) { HomeScreen(navegacao = navegacao) }
