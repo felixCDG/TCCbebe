@@ -23,6 +23,8 @@ import com.example.tccbebe.screens.CadastroBebeNovo
 import com.example.tccbebe.screens.CadastroResponsavelNovo
 import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.CalendarioScreen
+import com.example.tccbebe.screens.ChatIndividualScreen
+import com.example.tccbebe.screens.ContatosScreen
 import com.example.tccbebe.screens.CriarConta
 import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
@@ -59,6 +61,12 @@ class MainActivity : ComponentActivity() {
                composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
                composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
                composable(route = "home",) { HomeScreen(navegacao = navegacao) }
+               composable(route = "contatos") { ContatosScreen(navController = navegacao) }
+               composable(route = "chat/{contatoId}/{contatoNome}") { backStackEntry ->
+                   val contatoId = backStackEntry.arguments?.getString("contatoId") ?: ""
+                   val contatoNome = backStackEntry.arguments?.getString("contatoNome") ?: ""
+                   ChatIndividualScreen(navController = navegacao, contatoId = contatoId, contatoNome = contatoNome)
+               }
             }
 
         }

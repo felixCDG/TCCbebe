@@ -103,7 +103,7 @@ fun TopHeader(navegacao: NavHostController?) {
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF333333),
                 modifier = Modifier.clickable {
-                    navegacao?.navigate("chat")
+                    navegacao?.navigate("contatos")
                 }
             )
         }
@@ -140,7 +140,7 @@ fun TopHeader(navegacao: NavHostController?) {
             ) {
                 IconButton(
                     onClick = {
-                        navegacao?.navigate("perfilResp")
+                        navegacao?.navigate("perfilresp")
                     }
                 ) {
                     Icon(

@@ -87,6 +87,15 @@ fun CadastroResponsavelNovo(navegacao: NavHostController?) {
         )
     }
     
+/* <<<<<<<<<<<<<<  ✨ Windsurf Command ⭐ >>>>>>>>>>>>>>>> */
+    /**
+     * Formata uma data em um padr o de "dd/MM/yyyy" a partir de uma string de digitos.
+     * Exemplo: "12345678" -> "12/05/1978"
+     *
+     * @param textFieldValue O valor a ser formatado.
+     * @return O valor formatado.
+     */
+/* <<<<<<<<<<  ed1d8ee6-33be-41c3-811c-3eb7a2a561bf  >>>>>>>>>>> */
     fun formatarData(textFieldValue: TextFieldValue): TextFieldValue {
         val digitos = textFieldValue.text.filter { it.isDigit() }
         val textoFormatado = when {

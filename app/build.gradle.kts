@@ -90,7 +90,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
 
 // DateTime pickers Material3
-    implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.0")
+
+ implementation("com.marosseleng.android:compose-material3-datetime-pickers:0.6.0")
 
 // Testes
     testImplementation(libs.junit)
