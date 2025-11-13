@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import br.senai.sp.jandira.telarotina.screens.CriarRotinaScreen
 import com.example.tccbebe.screens.Bemvindo
 import com.example.tccbebe.screens.CadastroBebe
 import com.example.tccbebe.screens.CadastroBebeNovo
@@ -67,6 +68,7 @@ class MainActivity : ComponentActivity() {
                    val contatoNome = backStackEntry.arguments?.getString("contatoNome") ?: ""
                    ChatIndividualScreen(navController = navegacao, contatoId = contatoId, contatoNome = contatoNome)
                }
+                composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
             }
 
         }

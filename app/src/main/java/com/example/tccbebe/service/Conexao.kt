@@ -29,6 +29,10 @@ class Conexao {
         return conexao.create(RegistroBebe::class.java)
     }
 
+    fun getItemRotinaService(): CadstroItemRotina{
+        return conexao.create(CadstroItemRotina::class.java)
+    }
+
 
 
 }

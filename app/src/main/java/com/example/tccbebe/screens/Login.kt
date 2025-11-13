@@ -273,7 +273,7 @@ fun Loginscreen(navegacao: NavHostController?) {
                                 SessionManager.saveAuthToken(context, loginUsuario.token)
 
                                 withContext(Dispatchers.Main) {
-                                    navegacao?.navigate("home")
+                                    navegacao?.navigate("itemR")
                                 }
                             } else {
                                 Log.e("API_LOGIN", "Erro na resposta: ${response.errorBody()?.string()}")

@@ -66,7 +66,10 @@ object SessionManager {
     fun getBearerToken(context: Context): String? {
         val token = getAuthToken(context)
         val bearerToken = if (token != null) "Bearer $token" else null
-        Log.d("SESSION_MANAGER", "🎯 getBearerToken retornando: $bearerToken")
+        Log.d("SESSION_MANAGER", "🎯 getBearerToken - Token bruto: $token")
+        Log.d("SESSION_MANAGER", "🎯 getBearerToken - Bearer formatado: $bearerToken")
+        Log.d("SESSION_MANAGER", "🎯 getBearerToken - Token é null? ${token == null}")
+        Log.d("SESSION_MANAGER", "🎯 getBearerToken - Token está vazio? ${token?.isEmpty()}")
         return bearerToken
     }
 

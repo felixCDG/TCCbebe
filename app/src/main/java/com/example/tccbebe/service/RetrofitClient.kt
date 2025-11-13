@@ -26,14 +26,31 @@ object RetrofitClient {
             val token = SessionManager.getBearerToken(context)
             
             // 🔍 LOG DETALHADO - Mostra o que está sendo enviado
-            Log.d("AUTH_INTERCEPTOR", "=== INTERCEPTOR DEBUG ===")
+            Log.d("AUTH_INTERCEPTOR", "=== INTERCEPTOR DEBUG COMPLETO ===")
             Log.d("AUTH_INTERCEPTOR", "URL da requisição: ${originalRequest.url}")
-            Log.d("AUTH_INTERCEPTOR", "Método: ${originalRequest.method}")
-            Log.d("AUTH_INTERCEPTOR", "Token recuperado do SessionManager: $token")
+            Log.d("AUTH_INTERCEPTOR", "Método HTTP: ${originalRequest.method}")
+            Log.d("AUTH_INTERCEPTOR", "Content-Type: ${originalRequest.header("Content-Type")}")
+            
+            // Log do body da requisição se existir
+            originalRequest.body?.let { body ->
+                Log.d("AUTH_INTERCEPTOR", "Body size: ${body.contentLength()} bytes")
+                Log.d("AUTH_INTERCEPTOR", "Body content-type: ${body.contentType()}")
+            }
+            
+            // Log dos headers originais
+            Log.d("AUTH_INTERCEPTOR", "Headers originais:")
+            originalRequest.headers.forEach { header ->
+                Log.d("AUTH_INTERCEPTOR", "  ORIGINAL: ${header.first}: ${header.second}")
+            }
+            
+            // Verificação do token
+            val rawToken = SessionManager.getAuthToken(context)
+            Log.d("AUTH_INTERCEPTOR", "Token bruto do SessionManager: $rawToken")
+            Log.d("AUTH_INTERCEPTOR", "Bearer token formatado: $token")
             
             val newRequest = if (token != null) {
                 Log.d("AUTH_INTERCEPTOR", "✅ TOKEN ENCONTRADO - Adicionando header Authorization")
-                Log.d("AUTH_INTERCEPTOR", "Header que será enviado: Authorization: $token")
+                Log.d("AUTH_INTERCEPTOR", "Header Authorization que será enviado: $token")
                 
                 originalRequest.newBuilder()
                     .addHeader("Authorization", token)
@@ -44,13 +61,28 @@ object RetrofitClient {
             }
             
             // Log dos headers finais da requisição
-            Log.d("AUTH_INTERCEPTOR", "Headers da requisição final:")
+            Log.d("AUTH_INTERCEPTOR", "=== HEADERS FINAIS DA REQUISIÇÃO ===")
             newRequest.headers.forEach { header ->
-                Log.d("AUTH_INTERCEPTOR", "  ${header.first}: ${header.second}")
+                Log.d("AUTH_INTERCEPTOR", "  FINAL: ${header.first}: ${header.second}")
             }
-            Log.d("AUTH_INTERCEPTOR", "=== FIM DEBUG ===")
             
-            chain.proceed(newRequest)
+            // Log da URL completa
+            Log.d("AUTH_INTERCEPTOR", "URL completa: ${newRequest.url}")
+            Log.d("AUTH_INTERCEPTOR", "=== ENVIANDO REQUISIÇÃO ===")
+            
+            val response = chain.proceed(newRequest)
+            
+            // Log da resposta
+            Log.d("AUTH_INTERCEPTOR", "=== RESPOSTA RECEBIDA ===")
+            Log.d("AUTH_INTERCEPTOR", "Status Code: ${response.code}")
+            Log.d("AUTH_INTERCEPTOR", "Status Message: ${response.message}")
+            Log.d("AUTH_INTERCEPTOR", "Headers da resposta:")
+            response.headers.forEach { header ->
+                Log.d("AUTH_INTERCEPTOR", "  RESPONSE: ${header.first}: ${header.second}")
+            }
+            Log.d("AUTH_INTERCEPTOR", "=== FIM INTERCEPTOR DEBUG ===")
+            
+            response
         }
     }
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bold Add Icon with more volume -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Horizontal bar (thicker) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,10 L18,10 L18,14 L6,14 Z"/>
+    
+    <!-- Vertical bar (thicker) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,6 L14,6 L14,18 L10,18 Z"/>
+</vector>
