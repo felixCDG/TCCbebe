@@ -18,7 +18,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import br.senai.sp.jandira.telarotina.screens.CriarRotinaScreen
-import com.example.tccbebe.screens.Bemvindo
+import com.example.tccbebe.screens.BabyIAScreen
 import com.example.tccbebe.screens.CadastroBebe
 import com.example.tccbebe.screens.CadastroBebeNovo
 import com.example.tccbebe.screens.CadastroResponsavelNovo
@@ -45,7 +45,6 @@ class MainActivity : ComponentActivity() {
                 startDestination = "splash"
             ){
                composable(route = "splash"){ SplashScreen(navegacao) }
-               composable(route = "bemvindo"){ Bemvindo(navegacao) }
                composable(route = "criarconta"){ CriarConta(navegacao) }
                composable(
                    route = "login",
@@ -68,6 +67,7 @@ class MainActivity : ComponentActivity() {
                    val contatoNome = backStackEntry.arguments?.getString("contatoNome") ?: ""
                    ChatIndividualScreen(navController = navegacao, contatoId = contatoId, contatoNome = contatoNome)
                }
+               composable(route = "babyia") { BabyIAScreen(navegacao = navegacao) }
                 composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
             }
 
