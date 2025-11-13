@@ -787,6 +787,12 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                                         Log.i("ROTINA_DEBUG", "Mensagem: ${response.message}")
                                         Log.i("ROTINA_DEBUG", "Data: ${response.data}")
 
+                                        // Coletar ID do item criado
+                                        if (response.status && response.data.id_item > 0) {
+                                            itemIdsCriados.add(response.data.id_item)
+                                            Log.i("ROTINA_DEBUG", "✅ ID do item ${index + 1} coletado: ${response.data.id_item}")
+                                        }
+
                                     } catch (e: Exception) {
                                         Log.e("ROTINA_DEBUG", "=== ERRO NA REQUISIÇÃO - ITEM ${index + 1} ===")
                                         Log.e("ROTINA_DEBUG", "❌ Erro ao cadastrar: ${e.message}")
@@ -796,9 +802,46 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                                     }
                                 }
 
+                                // Agora criar a rotina principal com os IDs dos itens
+                                val rotinaPrincipalComItens = rotinaPrincipal.copy(idItens = itemIdsCriados)
+                                
+                                Log.i("ROTINA_DEBUG", "=== CRIANDO ROTINA PRINCIPAL COM IDS DOS ITENS ===")
+                                Log.i("ROTINA_DEBUG", "Título: '${rotinaPrincipalComItens.titulo}'")
+                                Log.i("ROTINA_DEBUG", "Cor: '${rotinaPrincipalComItens.cor}'")
+                                Log.i("ROTINA_DEBUG", "User ID: ${rotinaPrincipalComItens.idUser}")
+                                Log.i("ROTINA_DEBUG", "IDs dos itens: ${rotinaPrincipalComItens.idItens}")
+
+                                try {
+                                    Log.i("ROTINA_DEBUG", "🚀 Criando rotina principal...")
+                                    val rotinaResponse = rotinaApi.cadastrarRotina(rotinaPrincipalComItens).await()
+                                    
+                                    Log.i("ROTINA_DEBUG", "=== RESPOSTA ROTINA PRINCIPAL ===")
+                                    Log.i("ROTINA_DEBUG", "✅ Rotina criada: $rotinaResponse")
+                                    Log.i("ROTINA_DEBUG", "Status: ${rotinaResponse.status}")
+                                    Log.i("ROTINA_DEBUG", "Mensagem: ${rotinaResponse.message}")
+
+                                    // Salvar IDs no SessionManager
+                                    if (rotinaResponse.status) {
+                                        // Salvar ID da rotina (assumindo que vem na resposta)
+                                        // SessionManager.saveRotinaId(context, rotinaResponse.data.id_rotina)
+                                        
+                                        // Salvar IDs dos itens
+                                        SessionManager.saveItemIds(context, itemIdsCriados)
+                                        
+                                        Log.i("ROTINA_DEBUG", "✅ IDs salvos no SessionManager")
+                                        Log.i("ROTINA_DEBUG", "IDs dos itens salvos: $itemIdsCriados")
+                                    }
+
+                                } catch (e: Exception) {
+                                    Log.e("ROTINA_DEBUG", "=== ERRO NA CRIAÇÃO DA ROTINA PRINCIPAL ===")
+                                    Log.e("ROTINA_DEBUG", "❌ Erro ao criar rotina: ${e.message}")
+                                    Log.e("ROTINA_DEBUG", "Tipo do erro: ${e.javaClass.simpleName}")
+                                    e.printStackTrace()
+                                }
+
                             } catch (e: Exception) {
-                                Log.e("ROTINA_DEBUG", "=== ERRO NA CRIAÇÃO DA ROTINA PRINCIPAL ===")
-                                Log.e("ROTINA_DEBUG", "❌ Erro ao criar rotina: ${e.message}")
+                                Log.e("ROTINA_DEBUG", "=== ERRO GERAL ===")
+                                Log.e("ROTINA_DEBUG", "❌ Erro geral: ${e.message}")
                                 Log.e("ROTINA_DEBUG", "Tipo do erro: ${e.javaClass.simpleName}")
                                 e.printStackTrace()
                             }
