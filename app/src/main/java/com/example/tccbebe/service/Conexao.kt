@@ -33,6 +33,10 @@ class Conexao {
         return conexao.create(CadstroItemRotina::class.java)
     }
 
+    fun getRotinaService(): CadstroRotina{
+        return conexao.create(CadstroRotina::class.java)
+    }
+
 
 
 }
