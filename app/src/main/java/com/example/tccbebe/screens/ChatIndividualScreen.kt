@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.VideoCall
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -114,6 +115,22 @@ fun ChatIndividualScreen(
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
+            
+            // Botão de videochamada
+            IconButton(
+                onClick = { 
+                    // Gerar nome da sala baseado no contato
+                    val roomName = "chat-${contatoId}-${System.currentTimeMillis()}"
+                    navController?.navigate("videochamada/$roomName")
+                }
+            ) {
+                Icon(
+                    Icons.Default.VideoCall,
+                    contentDescription = "Iniciar videochamada",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
         
         // Área de mensagens
@@ -165,18 +182,54 @@ fun ChatIndividualScreen(
                     }
                 }
                 else -> {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.mensagens) { mensagem ->
-                            MensagemItem(
-                                mensagem = mensagem,
-                                isEnviada = viewModel.isMensagemEnviada(mensagem)
-                            )
+                    if (uiState.mensagens.isEmpty()) {
+                        // Tela vazia quando não há mensagens
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = "Chat vazio",
+                                    tint = Color.Gray.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Inicie uma conversa com $contatoNome",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Suas mensagens aparecerão aqui",
+                                    color = Color.Gray.copy(alpha = 0.7f),
+                                    fontSize = 14.sp,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(uiState.mensagens) { mensagem ->
+                                MensagemItem(
+                                    mensagem = mensagem,
+                                    isEnviada = viewModel.isMensagemEnviada(mensagem)
+                                )
+                            }
                         }
                     }
                 }

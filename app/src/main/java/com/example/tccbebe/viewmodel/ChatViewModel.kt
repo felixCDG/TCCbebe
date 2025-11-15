@@ -31,6 +31,11 @@ class ChatViewModel(private val context: Context) : ViewModel() {
         return if (userId != -1) userId.toString() else "1" // Fallback para ID 1 se não estiver logado
     }
     
+    // Verificar se a mensagem foi enviada pelo usuário atual
+    fun isMensagemEnviada(mensagem: Mensagem): Boolean {
+        return mensagem.id_user == getCurrentUserId() || mensagem.remetente == "Você"
+    }
+    
     fun carregarMensagens(chatId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
@@ -50,10 +55,22 @@ class ChatViewModel(private val context: Context) : ViewModel() {
                 }
                 .onFailure { exception ->
                     println("❌ Erro ao carregar mensagens: ${exception.message}")
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = exception.message
-                    )
+                    // Se for erro 404 ou chat sem mensagens, não mostrar erro - apenas chat vazio
+                    if (exception.message?.contains("404") == true || 
+                        exception.message?.contains("não encontrado") == true ||
+                        exception.message?.contains("not found") == true) {
+                        println("ℹ️ Chat sem mensagens anteriores - iniciando chat vazio")
+                        _uiState.value = _uiState.value.copy(
+                            mensagens = emptyList(),
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = exception.message
+                        )
+                    }
                 }
         }
     }
@@ -64,6 +81,21 @@ class ChatViewModel(private val context: Context) : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isEnviandoMensagem = true)
             
+            // Criar mensagem temporária para mostrar imediatamente na UI
+            val mensagemTemporaria = Mensagem(
+                id = "temp_${System.currentTimeMillis()}",
+                conteudo = conteudo,
+                id_chat = chatId,
+                id_user = getCurrentUserId(),
+                created_at = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date()),
+                remetente = "Você"
+            )
+            
+            // Adicionar mensagem temporária à lista
+            val mensagensAtuais = _uiState.value.mensagens.toMutableList()
+            mensagensAtuais.add(mensagemTemporaria)
+            _uiState.value = _uiState.value.copy(mensagens = mensagensAtuais)
+            
             println("📤 Enviando mensagem: '$conteudo' para chat $chatId")
             
             repository.enviarMensagem(conteudo, chatId, getCurrentUserId())
@@ -71,12 +103,16 @@ class ChatViewModel(private val context: Context) : ViewModel() {
                     println("✅ Mensagem processada: ${mensagem.id}")
                     _uiState.value = _uiState.value.copy(isEnviandoMensagem = false)
                     
-                    // Recarregar mensagens para mostrar a nova mensagem
+                    // Remover mensagem temporária e recarregar para pegar a mensagem real
                     carregarMensagens(chatId)
                 }
                 .onFailure { exception ->
                     println("❌ Erro ao processar mensagem: ${exception.message}")
+                    
+                    // Remover mensagem temporária em caso de erro
+                    val mensagensSemTemp = _uiState.value.mensagens.filter { !it.id.startsWith("temp_") }
                     _uiState.value = _uiState.value.copy(
+                        mensagens = mensagensSemTemp,
                         isEnviandoMensagem = false,
                         errorMessage = "Erro ao enviar mensagem: ${exception.message}"
                     )
@@ -99,10 +135,6 @@ class ChatViewModel(private val context: Context) : ViewModel() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
     
-    // Método para verificar se uma mensagem foi enviada pelo usuário atual
-    fun isMensagemEnviada(mensagem: Mensagem): Boolean {
-        return mensagem.id_user == getCurrentUserId()
-    }
     
     // Método para recarregar mensagens
     fun recarregarMensagens(chatId: String) {

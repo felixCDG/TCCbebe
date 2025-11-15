@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
+import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
@@ -86,7 +86,7 @@ fun VideoChamadaScreen(navegacao: NavHostController?, roomName: String? = null) 
     LaunchedEffect(hasCameraPermission, isCameraOff) {
         if (hasCameraPermission && !isCameraOff) {
             val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build()
+            val preview = CameraPreview.Builder().build()
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
             
             try {
@@ -329,7 +329,7 @@ fun VideoChamadaScreen(navegacao: NavHostController?, roomName: String? = null) 
                                     },
                                     fontSize = 12.sp,
                                     color = when {
-                                        !hasCameraPermission -> Color.Orange
+                                        !hasCameraPermission -> Color.Yellow
                                         isCameraOff -> Color.Red
                                         else -> Color.Green
                                     }

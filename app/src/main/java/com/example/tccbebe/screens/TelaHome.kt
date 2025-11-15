@@ -103,7 +103,7 @@ fun TopHeader(navegacao: NavHostController?) {
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF333333),
                 modifier = Modifier.clickable {
-                    navegacao?.navigate("babyia")
+                    navegacao?.navigate("contatos")
                 }
             )
             Text(
