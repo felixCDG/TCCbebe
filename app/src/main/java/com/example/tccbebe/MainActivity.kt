@@ -31,6 +31,7 @@ import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
 import com.example.tccbebe.screens.SplashScreen
+import com.example.tccbebe.screens.VideoChamadaScreen
 import com.example.tccbebe.ui.theme.TCCBEBETheme
 
 class MainActivity : ComponentActivity() {
@@ -68,6 +69,11 @@ class MainActivity : ComponentActivity() {
                    ChatIndividualScreen(navController = navegacao, contatoId = contatoId, contatoNome = contatoNome)
                }
                composable(route = "babyia") { BabyIAScreen(navegacao = navegacao) }
+               composable(route = "videochamada/{roomName}") { backStackEntry ->
+                   val roomName = backStackEntry.arguments?.getString("roomName")
+                   VideoChamadaScreen(navegacao = navegacao, roomName = roomName)
+               }
+               composable(route = "videochamada") { VideoChamadaScreen(navegacao = navegacao) }
                 composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
             }
 

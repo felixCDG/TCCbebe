@@ -445,7 +445,7 @@ fun Cadastroscreen(navegacao: NavHostController?) {
                         nome_user = nameState.value,
                         email = emailState.value,
                         senha = senhaState.value,
-                        id_tipo = 3,
+                        id_tipo = 1,
                     )
 
                     Log.i("Cadastro", " Enviando dados para API: $cliente")

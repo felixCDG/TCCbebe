@@ -30,4 +30,12 @@ class AuthenticatedConexao(private val context: Context) {
     fun getRotinaService(): CadstroRotina {
         return authenticatedRetrofit.create(CadstroRotina::class.java)
     }
+
+    fun getChatIAService(): ChatIAApiService {
+        return authenticatedRetrofit.create(ChatIAApiService::class.java)
+    }
+
+    fun getVideoChamadaService(): VideoChamadaApiService {
+        return authenticatedRetrofit.create(VideoChamadaApiService::class.java)
+    }
 }

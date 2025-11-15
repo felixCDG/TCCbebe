@@ -19,12 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.tccbebe.repository.ChatIARepository
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,6 +41,10 @@ data class MensagemIA(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BabyIAScreen(navegacao: NavHostController?) {
+    val context = LocalContext.current
+    val chatIARepository = remember { ChatIARepository(context) }
+    val coroutineScope = rememberCoroutineScope()
+    
     var mensagemTexto by remember { mutableStateOf("") }
     var mensagens by remember { mutableStateOf(listOf(
         MensagemIA(
@@ -45,22 +52,20 @@ fun BabyIAScreen(navegacao: NavHostController?) {
             conteudo = "Olá! Eu sou a BabyIA, sua assistente especializada em cuidados com bebês. Como posso te ajudar hoje?",
             isFromUser = false,
             timestamp = "14:30"
-        ),
-        MensagemIA(
-            id = "2",
-            conteudo = "Oi! Meu bebê está com 3 meses e não está dormindo bem à noite. O que posso fazer?",
-            isFromUser = true,
-            timestamp = "14:32"
-        ),
-        MensagemIA(
-            id = "3",
-            conteudo = "Entendo sua preocupação! Aos 3 meses, é normal que o padrão de sono ainda esteja se desenvolvendo. Algumas dicas que podem ajudar:\n\n• Estabeleça uma rotina noturna consistente\n• Mantenha o ambiente escuro e silencioso\n• Evite estímulos antes de dormir\n• Considere o método de \"swaddling\" (embrulhar o bebê)\n\nSe o problema persistir, consulte o pediatra. Posso te ajudar com mais alguma coisa?",
-            isFromUser = false,
-            timestamp = "14:33"
         )
     )) }
     
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
     val listState = rememberLazyListState()
+    
+    // Função para rolar para o final da lista
+    LaunchedEffect(mensagens.size) {
+        if (mensagens.isNotEmpty()) {
+            listState.animateScrollToItem(mensagens.size - 1)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -129,6 +134,60 @@ fun BabyIAScreen(navegacao: NavHostController?) {
             items(mensagens) { mensagem ->
                 MensagemIAItem(mensagem = mensagem)
             }
+            
+            // Mostrar indicador de carregamento quando IA está processando
+            if (isLoading) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(Color(0xFF7986CB), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.SmartToy,
+                                contentDescription = "IA",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        Card(
+                            modifier = Modifier.widthIn(max = 280.dp),
+                            shape = RoundedCornerShape(
+                                topStart = 4.dp,
+                                topEnd = 16.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            ),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = Color(0xFF7986CB),
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "BabyIA está pensando...",
+                                    color = Color(0xFF333333),
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Campo de entrada
@@ -161,38 +220,63 @@ fun BabyIAScreen(navegacao: NavHostController?) {
             
             FloatingActionButton(
                 onClick = {
-                    if (mensagemTexto.isNotBlank()) {
+                    if (mensagemTexto.isNotBlank() && !isLoading) {
+                        val pergunta = mensagemTexto
                         val novaMensagem = MensagemIA(
                             id = UUID.randomUUID().toString(),
-                            conteudo = mensagemTexto,
+                            conteudo = pergunta,
                             isFromUser = true,
                             timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                         )
                         mensagens = mensagens + novaMensagem
                         mensagemTexto = ""
+                        isLoading = true
+                        errorMessage = null
                         
-                        // Simular resposta da IA após 2 segundos
-                        Timer().schedule(object : TimerTask() {
-                            override fun run() {
-                                val respostaIA = MensagemIA(
-                                    id = UUID.randomUUID().toString(),
-                                    conteudo = gerarRespostaIA(novaMensagem.conteudo),
-                                    isFromUser = false,
-                                    timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-                                )
-                                mensagens = mensagens + respostaIA
-                            }
-                        }, 2000)
+                        // Chamar API real
+                        coroutineScope.launch {
+                            chatIARepository.enviarPerguntaIA(pergunta)
+                                .onSuccess { response ->
+                                    val respostaIA = MensagemIA(
+                                        id = UUID.randomUUID().toString(),
+                                        conteudo = response.IA_response,
+                                        isFromUser = false,
+                                        timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                                    )
+                                    mensagens = mensagens + respostaIA
+                                    isLoading = false
+                                }
+                                .onFailure { error ->
+                                    errorMessage = error.message
+                                    isLoading = false
+                                    // Adicionar mensagem de erro
+                                    val mensagemErro = MensagemIA(
+                                        id = UUID.randomUUID().toString(),
+                                        conteudo = "Desculpe, ocorreu um erro ao processar sua pergunta. Tente novamente.",
+                                        isFromUser = false,
+                                        timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                                    )
+                                    mensagens = mensagens + mensagemErro
+                                }
+                        }
                     }
                 },
-                containerColor = if (mensagemTexto.isNotBlank()) Color(0xFF7986CB) else Color.Gray,
+                containerColor = if (mensagemTexto.isNotBlank() && !isLoading) Color(0xFF7986CB) else Color.Gray,
                 modifier = Modifier.size(48.dp)
             ) {
-                Icon(
-                    Icons.Default.Send,
-                    contentDescription = "Enviar mensagem",
-                    tint = Color.White
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Send,
+                        contentDescription = "Enviar mensagem",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
@@ -282,27 +366,6 @@ fun MensagemIAItem(mensagem: MensagemIA) {
     }
 }
 
-fun gerarRespostaIA(pergunta: String): String {
-    val respostasComuns = listOf(
-        "Essa é uma excelente pergunta! Com base nas melhores práticas pediátricas, recomendo que você consulte sempre o pediatra do seu bebê para orientações personalizadas.",
-        "Entendo sua preocupação. Cada bebê é único, mas posso compartilhar algumas informações gerais que podem ser úteis. Lembre-se sempre de consultar um profissional de saúde.",
-        "Obrigada por compartilhar isso comigo! Vou te dar algumas dicas baseadas em evidências científicas, mas é importante sempre validar com o pediatra do seu bebê.",
-        "Essa situação é mais comum do que você imagina! Vou te ajudar com algumas orientações, mas não esqueça de discutir isso na próxima consulta pediátrica."
-    )
-    
-    return when {
-        pergunta.contains("sono", ignoreCase = true) || pergunta.contains("dormir", ignoreCase = true) -> 
-            "Para questões de sono, algumas dicas importantes:\n\n• Estabeleça uma rotina consistente\n• Ambiente escuro e silencioso\n• Temperatura adequada (18-20°C)\n• Evite estímulos antes de dormir\n\nCada bebê tem seu ritmo. Se persistir, consulte o pediatra!"
-        
-        pergunta.contains("alimentação", ignoreCase = true) || pergunta.contains("comer", ignoreCase = true) || pergunta.contains("leite", ignoreCase = true) ->
-            "Sobre alimentação:\n\n• Até 6 meses: leite materno exclusivo (quando possível)\n• Introdução alimentar gradual após 6 meses\n• Observe sinais de fome e saciedade\n• Mantenha horários regulares\n\nSempre siga as orientações do seu pediatra!"
-        
-        pergunta.contains("choro", ignoreCase = true) || pergunta.contains("chorando", ignoreCase = true) ->
-            "O choro é a principal forma de comunicação do bebê. Pode indicar:\n\n• Fome\n• Sono\n• Desconforto (fralda, temperatura)\n• Necessidade de colo\n• Cólicas\n\nTente identificar padrões. Se o choro for excessivo, consulte o pediatra."
-        
-        else -> respostasComuns.random()
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
