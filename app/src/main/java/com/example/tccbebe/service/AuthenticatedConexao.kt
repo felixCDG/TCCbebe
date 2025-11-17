@@ -38,4 +38,8 @@ class AuthenticatedConexao(private val context: Context) {
     fun getVideoChamadaService(): VideoChamadaApiService {
         return authenticatedRetrofit.create(VideoChamadaApiService::class.java)
     }
+
+    fun getCadstroClinica(): CadastroClinicaService {
+        return authenticatedRetrofit.create(CadastroClinicaService::class.java)
+    }
 }

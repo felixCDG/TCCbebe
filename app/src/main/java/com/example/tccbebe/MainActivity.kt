@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import br.senai.sp.jandira.cadastroclinica.screens.ClinicaRegistrationScreen
+import br.senai.sp.jandira.cadastroclinica.screens.HomeClinicaScreen
 import br.senai.sp.jandira.telarotina.screens.CriarRotinaScreen
 import com.example.tccbebe.screens.BabyIAScreen
 import com.example.tccbebe.screens.CadastroBebe
@@ -26,7 +28,6 @@ import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.CalendarioScreen
 import com.example.tccbebe.screens.ChatIndividualScreen
 import com.example.tccbebe.screens.ContatosScreen
-import com.example.tccbebe.screens.CriarConta
 import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 startDestination = "splash"
             ){
                composable(route = "splash"){ SplashScreen(navegacao) }
-               composable(route = "criarconta"){ CriarConta(navegacao) }
+                composable(route = "cadastroC",) { ClinicaRegistrationScreen(navegacao = navegacao) }
                composable(
                    route = "login",
                    enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { -it }) },
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
                composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
                composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
                composable(route = "home",) { HomeScreen(navegacao = navegacao) }
+               composable(route = "homeC",) { HomeClinicaScreen(navegacao = navegacao) }
                composable(route = "contatos") { ContatosScreen(navController = navegacao) }
                composable(route = "chat/{contatoId}/{contatoNome}") { backStackEntry ->
                    val contatoId = backStackEntry.arguments?.getString("contatoId") ?: ""

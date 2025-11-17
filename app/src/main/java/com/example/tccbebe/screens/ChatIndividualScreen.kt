@@ -57,12 +57,15 @@ fun ChatIndividualScreen(
     
     // Inicializar chat quando a tela é carregada
     LaunchedEffect(contatoId) {
+        println("📱 [UI] Iniciando ChatIndividualScreen para contato: $contatoId ($contatoNome)")
         viewModel.criarOuBuscarChat(contatoId, contatoNome)
     }
     
     // Auto-scroll para a última mensagem
     LaunchedEffect(uiState.mensagens.size) {
+        println("📱 [UI] Mensagens atualizadas: ${uiState.mensagens.size} mensagens")
         if (uiState.mensagens.isNotEmpty()) {
+            println("📱 [UI] Fazendo scroll para a última mensagem")
             listState.animateScrollToItem(uiState.mensagens.size - 1)
         }
     }
@@ -145,18 +148,30 @@ fun ChatIndividualScreen(
             // Lista de mensagens
             when {
                 uiState.isLoading -> {
+                    println("📱 [UI] Exibindo loading...")
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = Color(0xFF7986CB)
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(
+                                color = Color(0xFF7986CB)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Carregando mensagens...",
+                                color = Color.Gray,
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                 }
                 uiState.errorMessage != null -> {
+                    println("📱 [UI] Exibindo erro: ${uiState.errorMessage}")
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -174,7 +189,10 @@ fun ChatIndividualScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
-                                onClick = { viewModel.criarOuBuscarChat(contatoId, contatoNome) }
+                                onClick = { 
+                                    println("📱 [UI] Tentando novamente...")
+                                    viewModel.criarOuBuscarChat(contatoId, contatoNome) 
+                                }
                             ) {
                                 Text("Tentar novamente")
                             }
@@ -183,6 +201,7 @@ fun ChatIndividualScreen(
                 }
                 else -> {
                     if (uiState.mensagens.isEmpty()) {
+                        println("📱 [UI] Exibindo tela vazia - sem mensagens")
                         // Tela vazia quando não há mensagens
                         Box(
                             modifier = Modifier
@@ -217,6 +236,7 @@ fun ChatIndividualScreen(
                             }
                         }
                     } else {
+                        println("📱 [UI] Exibindo ${uiState.mensagens.size} mensagens")
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
@@ -225,6 +245,7 @@ fun ChatIndividualScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(uiState.mensagens) { mensagem ->
+                                println("📱 [UI] Renderizando mensagem: '${mensagem.conteudo}' - Enviada: ${viewModel.isMensagemEnviada(mensagem)}")
                                 MensagemItem(
                                     mensagem = mensagem,
                                     isEnviada = viewModel.isMensagemEnviada(mensagem)
@@ -281,8 +302,11 @@ fun ChatIndividualScreen(
                 FloatingActionButton(
                     onClick = {
                         if (mensagemTexto.isNotBlank()) {
+                            println("📱 [UI] Enviando mensagem: '$mensagemTexto' para contato $contatoId")
                             viewModel.enviarMensagem(mensagemTexto, contatoId)
                             mensagemTexto = ""
+                        } else {
+                            println("📱 [UI] Tentativa de enviar mensagem vazia")
                         }
                     },
                     modifier = Modifier.size(48.dp),

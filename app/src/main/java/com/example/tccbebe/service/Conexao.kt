@@ -37,6 +37,10 @@ class Conexao {
         return conexao.create(CadstroRotina::class.java)
     }
 
+    fun getCadastroClinicaService(): CadastroClinicaService{
+        return conexao.create(CadastroClinicaService::class.java)
+    }
+
 
 
 }

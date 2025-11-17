@@ -67,42 +67,78 @@ class ChatRepository(private val context: Context) {
             Result.failure(Exception("Erro de rede: ${e.message}"))
         }
     }
-    
+
     suspend fun getMessagesByChat(chatId: String): Result<List<Mensagem>> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.getAllMessages()
+            println("🔍 [REPO] Buscando mensagens para chat ID: $chatId")
+            val response = apiService.getMessagesByChat(chatId)
+
+            println("🔍 [REPO] Response code: ${response.code()}")
+            println("🔍 [REPO] Response successful: ${response.isSuccessful}")
+
             if (response.isSuccessful) {
                 val apiResponse = response.body()
+                println("🔍 [REPO] API Response success: ${apiResponse?.success}")
+                println("🔍 [REPO] API Response data size: ${apiResponse?.data?.size}")
+
                 if (apiResponse?.success == true && apiResponse.data != null) {
-                    val mensagensDoChat = apiResponse.data.filter { it.id_chat == chatId }
-                    Result.success(mensagensDoChat)
+                    println("✅ [REPO] Mensagens carregadas: ${apiResponse.data.size}")
+                    apiResponse.data.forEach { msg ->
+                        println("📝 [REPO] Mensagem: ID=${msg.id}, Conteúdo='${msg.conteudo}'")
+                    }
+                    Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception(apiResponse?.message ?: "Erro desconhecido"))
+                    val errorMsg = apiResponse?.message ?: "Erro desconhecido na resposta da API"
+                    println("❌ [REPO] Erro na resposta da API: $errorMsg")
+                    Result.failure(Exception(errorMsg))
                 }
             } else {
-                Result.failure(Exception("Erro HTTP: ${response.code()}"))
+                val errorMsg = "Erro HTTP: ${response.code()} - ${response.message()}"
+                println("❌ [REPO] $errorMsg")
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Erro de rede: ${e.message}"))
+            val errorMsg = "Erro de rede: ${e.message}"
+            println("❌ [REPO] $errorMsg")
+            println("❌ [REPO] Exception type: ${e::class.simpleName}")
+            e.printStackTrace()
+            Result.failure(Exception(errorMsg))
         }
     }
-    
+
+
     suspend fun enviarMensagem(conteudo: String, chatId: String, userId: String): Result<Mensagem> = withContext(Dispatchers.IO) {
         try {
             val request = EnviarMensagemRequest(conteudo, chatId, userId)
+            println("📤 [REPO] Enviando mensagem - Conteúdo: '$conteudo', Chat: $chatId, User: $userId")
+            
             val response = apiService.enviarMensagem(request)
+            println("📤 [REPO] Response code: ${response.code()}")
+            println("📤 [REPO] Response successful: ${response.isSuccessful}")
+            
             if (response.isSuccessful) {
                 val apiResponse = response.body()
+                println("📤 [REPO] API Response success: ${apiResponse?.success}")
+                
                 if (apiResponse?.success == true && apiResponse.data != null) {
+                    println("✅ [REPO] Mensagem enviada com sucesso: ID=${apiResponse.data.id}")
                     Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception(apiResponse?.message ?: "Erro ao enviar mensagem"))
+                    val errorMsg = apiResponse?.message ?: "Erro ao enviar mensagem"
+                    println("❌ [REPO] Erro na resposta: $errorMsg")
+                    Result.failure(Exception(errorMsg))
                 }
             } else {
-                Result.failure(Exception("Erro HTTP: ${response.code()}"))
+                val errorMsg = "Erro HTTP: ${response.code()} - ${response.message()}"
+                println("❌ [REPO] $errorMsg")
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Erro de rede: ${e.message}"))
+            val errorMsg = "Erro de rede: ${e.message}"
+            println("❌ [REPO] $errorMsg")
+            println("❌ [REPO] Exception type: ${e::class.simpleName}")
+            e.printStackTrace()
+            Result.failure(Exception(errorMsg))
         }
     }
     

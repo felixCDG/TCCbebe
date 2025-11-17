@@ -39,13 +39,18 @@ class ChatViewModel(private val context: Context) : ViewModel() {
     fun carregarMensagens(chatId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            println("📥 Carregando mensagens para chat ID: $chatId")
+            println("📥 [CHAT] Carregando mensagens para chat ID: $chatId")
+            println("📥 [CHAT] Usuario atual: ${getCurrentUserId()}")
             
             repository.getMessagesByChat(chatId)
                 .onSuccess { mensagens ->
-                    println("✅ Mensagens carregadas: ${mensagens.size} mensagens")
-                    mensagens.forEach { msg ->
-                        println("📝 Mensagem: '${msg.conteudo}' - User: ${msg.id_user} - Chat: ${msg.id_chat}")
+                    println("✅ [CHAT] Mensagens carregadas: ${mensagens.size} mensagens")
+                    if (mensagens.isNotEmpty()) {
+                        mensagens.forEach { msg ->
+                            println("📝 [CHAT] Mensagem: '${msg.conteudo}' - User: ${msg.id_user} - Chat: ${msg.id_chat} - Criada: ${msg.created_at}")
+                        }
+                    } else {
+                        println("ℹ️ [CHAT] Nenhuma mensagem encontrada para o chat $chatId")
                     }
                     
                     _uiState.value = _uiState.value.copy(
@@ -54,12 +59,15 @@ class ChatViewModel(private val context: Context) : ViewModel() {
                     )
                 }
                 .onFailure { exception ->
-                    println("❌ Erro ao carregar mensagens: ${exception.message}")
+                    println("❌ [CHAT] Erro ao carregar mensagens: ${exception.message}")
+                    println("❌ [CHAT] Stack trace: ${exception.stackTrace?.take(3)?.joinToString()}")
+                    
                     // Se for erro 404 ou chat sem mensagens, não mostrar erro - apenas chat vazio
                     if (exception.message?.contains("404") == true || 
                         exception.message?.contains("não encontrado") == true ||
-                        exception.message?.contains("not found") == true) {
-                        println("ℹ️ Chat sem mensagens anteriores - iniciando chat vazio")
+                        exception.message?.contains("not found") == true ||
+                        exception.message?.contains("Nenhuma mensagem") == true) {
+                        println("ℹ️ [CHAT] Chat sem mensagens anteriores - iniciando chat vazio")
                         _uiState.value = _uiState.value.copy(
                             mensagens = emptyList(),
                             isLoading = false,
@@ -68,7 +76,7 @@ class ChatViewModel(private val context: Context) : ViewModel() {
                     } else {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            errorMessage = exception.message
+                            errorMessage = "Erro ao carregar mensagens: ${exception.message}"
                         )
                     }
                 }
@@ -76,17 +84,23 @@ class ChatViewModel(private val context: Context) : ViewModel() {
     }
     
     fun enviarMensagem(conteudo: String, chatId: String) {
-        if (conteudo.isBlank()) return
+        if (conteudo.isBlank()) {
+            println("⚠️ [CHAT] Tentativa de enviar mensagem vazia")
+            return
+        }
         
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isEnviandoMensagem = true)
+            
+            val userId = getCurrentUserId()
+            println("📤 [CHAT] Enviando mensagem: '$conteudo' para chat $chatId como usuário $userId")
             
             // Criar mensagem temporária para mostrar imediatamente na UI
             val mensagemTemporaria = Mensagem(
                 id = "temp_${System.currentTimeMillis()}",
                 conteudo = conteudo,
                 id_chat = chatId,
-                id_user = getCurrentUserId(),
+                id_user = userId,
                 created_at = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date()),
                 remetente = "Você"
             )
@@ -95,19 +109,21 @@ class ChatViewModel(private val context: Context) : ViewModel() {
             val mensagensAtuais = _uiState.value.mensagens.toMutableList()
             mensagensAtuais.add(mensagemTemporaria)
             _uiState.value = _uiState.value.copy(mensagens = mensagensAtuais)
+            println("📝 [CHAT] Mensagem temporária adicionada à UI: ${mensagemTemporaria.id}")
             
-            println("📤 Enviando mensagem: '$conteudo' para chat $chatId")
-            
-            repository.enviarMensagem(conteudo, chatId, getCurrentUserId())
+            repository.enviarMensagem(conteudo, chatId, userId)
                 .onSuccess { mensagem ->
-                    println("✅ Mensagem processada: ${mensagem.id}")
+                    println("✅ [CHAT] Mensagem enviada com sucesso: ${mensagem.id}")
+                    println("✅ [CHAT] Conteúdo: '${mensagem.conteudo}' - Chat: ${mensagem.id_chat}")
                     _uiState.value = _uiState.value.copy(isEnviandoMensagem = false)
                     
                     // Remover mensagem temporária e recarregar para pegar a mensagem real
+                    println("🔄 [CHAT] Recarregando mensagens após envio...")
                     carregarMensagens(chatId)
                 }
                 .onFailure { exception ->
-                    println("❌ Erro ao processar mensagem: ${exception.message}")
+                    println("❌ [CHAT] Erro ao enviar mensagem: ${exception.message}")
+                    println("❌ [CHAT] Stack trace: ${exception.stackTrace?.take(3)?.joinToString()}")
                     
                     // Remover mensagem temporária em caso de erro
                     val mensagensSemTemp = _uiState.value.mensagens.filter { !it.id.startsWith("temp_") }
@@ -126,7 +142,8 @@ class ChatViewModel(private val context: Context) : ViewModel() {
             
             // Para contatos de teste, usar o contatoId diretamente como chatId
             // Isso simplifica a lógica e funciona com o backend atual
-            println("🔄 Carregando mensagens para chat ID: $contatoId")
+            println("🔄 [CHAT] Iniciando chat com contato ID: $contatoId ($contatoNome)")
+            println("🔄 [CHAT] Usuário atual: ${getCurrentUserId()}")
             carregarMensagens(contatoId)
         }
     }
