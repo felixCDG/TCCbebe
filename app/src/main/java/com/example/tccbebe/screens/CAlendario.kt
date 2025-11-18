@@ -77,7 +77,6 @@ fun CalendarioScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .padding(padding)
                 .background(Color.White)
         ) {

@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,41 +45,47 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val navegacao = rememberNavController()
-            NavHost(
-                navController = navegacao,
-                startDestination = "splash"
-            ){
-               composable(route = "splash"){ SplashScreen(navegacao) }
-                composable(route = "cadastroC",) { ClinicaRegistrationScreen(navegacao = navegacao) }
-               composable(
-                   route = "login",
-                   enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { -it }) },
-                   exitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { -it }) }
-               ){ Loginscreen(navegacao) }
-               composable(
-                   route = "cadastro",
-                   enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { it }) },
-                   exitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { it }) }
-               ){ Cadastroscreen(navegacao) }
-               composable(route = "cadastroR"){ CadastroResponsavelNovo(navegacao) }
-               composable(route = "cadastroB"){ CadastroBebeNovo(navegacao) }
-               composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
-               composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
-               composable(route = "home",) { HomeScreen(navegacao = navegacao) }
-               composable(route = "homeC",) { HomeClinicaScreen(navegacao = navegacao) }
-               composable(route = "contatos") { ContatosScreen(navController = navegacao) }
-               composable(route = "chat/{contatoId}/{contatoNome}") { backStackEntry ->
-                   val contatoId = backStackEntry.arguments?.getString("contatoId") ?: ""
-                   val contatoNome = backStackEntry.arguments?.getString("contatoNome") ?: ""
-                   ChatIndividualScreen(navController = navegacao, contatoId = contatoId, contatoNome = contatoNome)
-               }
-               composable(route = "babyia") { BabyIAScreen(navegacao = navegacao) }
-               composable(route = "videochamada/{roomName}") { backStackEntry ->
-                   val roomName = backStackEntry.arguments?.getString("roomName")
-                   VideoChamadaScreen(navegacao = navegacao, roomName = roomName)
-               }
-               composable(route = "videochamada") { VideoChamadaScreen(navegacao = navegacao) }
-                composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()
+            ) {
+                NavHost(
+                    navController = navegacao,
+                    startDestination = "splash"
+                ){
+                   composable(route = "splash"){ SplashScreen(navegacao) }
+                    composable(route = "cadastroC",) { ClinicaRegistrationScreen(navegacao = navegacao) }
+                   composable(
+                       route = "login",
+                       enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { -it }) },
+                       exitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { -it }) }
+                   ){ Loginscreen(navegacao) }
+                   composable(
+                       route = "cadastro",
+                       enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { it }) },
+                       exitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { it }) }
+                   ){ Cadastroscreen(navegacao) }
+                   composable(route = "cadastroR"){ CadastroResponsavelNovo(navegacao) }
+                   composable(route = "cadastroB"){ CadastroBebeNovo(navegacao) }
+                   composable(route = "perfilresp",) { PerfilResp(navegacao = navegacao) }
+                   composable(route = "calendario",) { CalendarioScreen(navegacao = navegacao) }
+                   composable(route = "home",) { HomeScreen(navegacao = navegacao) }
+                   composable(route = "homeC",) { HomeClinicaScreen(navegacao = navegacao) }
+                   composable(route = "contatos") { ContatosScreen(navController = navegacao) }
+                   composable(route = "chat/{contatoId}/{contatoNome}") { backStackEntry ->
+                       val contatoId = backStackEntry.arguments?.getString("contatoId") ?: ""
+                       val contatoNome = backStackEntry.arguments?.getString("contatoNome") ?: ""
+                       ChatIndividualScreen(navController = navegacao, contatoId = contatoId, contatoNome = contatoNome)
+                   }
+                   composable(route = "babyia") { BabyIAScreen(navegacao = navegacao) }
+                   composable(route = "videochamada/{roomName}") { backStackEntry ->
+                       val roomName = backStackEntry.arguments?.getString("roomName")
+                       VideoChamadaScreen(navegacao = navegacao, roomName = roomName)
+                   }
+                   composable(route = "videochamada") { VideoChamadaScreen(navegacao = navegacao) }
+                    composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
+                }
             }
 
         }
