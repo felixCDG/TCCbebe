@@ -54,7 +54,7 @@ fun HomeScreen(navegacao: NavHostController?) {
             HeroSection()
             ServicesSection()
             CalendarSection(navController = navegacao)
-            RoutineSection()
+            RoutineSection(navController = navegacao)
             HistorySection()
             ChatSection()
             FooterSection()
@@ -435,7 +435,7 @@ fun MiniCalendar() {
 }
 
 @Composable
-fun RoutineSection() {
+fun RoutineSection(navController: NavHostController?) {
     Spacer(Modifier.height(32.dp))
     Text(
         "Rotina do dia",
@@ -460,7 +460,7 @@ fun RoutineSection() {
     }
     Spacer(Modifier.height(8.dp))
     Button(
-        onClick = {},
+        onClick = { navController?.navigate("ItemR") },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A90E2))
     ) {
         Text("Ver rotina")

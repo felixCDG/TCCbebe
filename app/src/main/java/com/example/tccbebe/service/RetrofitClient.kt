@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     // Se estiver usando dispositivo físico, troque para o IP da sua máquina (ex: "http://192.168.x.x:3030/")
-    private const val BASE_URL = "http://10.0.2.2:3030/v1/sosbaby/"
+    private const val BASE_URL = "https://backend-sosbaby.onrender.com/v1/sosbaby/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

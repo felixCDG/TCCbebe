@@ -5,6 +5,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,7 +16,7 @@ import com.example.tccbebe.screens.componentesBarras.BotaoFlutuante
 import com.example.tccbebe.screens.componentesBarras.ConteudoRotina
 
 @Composable
-fun RotinaScreensPt1(modifier: Modifier = Modifier) {
+fun RotinaScreensPt1(modifier: Modifier = Modifier, navegacao: NavController?,) {
 
     var ControleNavegacao = rememberNavController()
 
@@ -45,5 +47,5 @@ fun RotinaScreensPt1(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun RotinaScreensPt1Preview() {
-    RotinaScreensPt1()
+    RotinaScreensPt1(navegacao = null)
 }

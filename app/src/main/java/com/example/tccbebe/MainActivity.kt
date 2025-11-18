@@ -31,6 +31,7 @@ import com.example.tccbebe.screens.ContatosScreen
 import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
+import com.example.tccbebe.screens.RotinaScreensPt1
 import com.example.tccbebe.screens.SplashScreen
 import com.example.tccbebe.screens.VideoChamadaScreen
 import com.example.tccbebe.ui.theme.TCCBEBETheme
