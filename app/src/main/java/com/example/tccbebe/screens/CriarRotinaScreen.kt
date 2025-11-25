@@ -13,10 +13,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -26,10 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
@@ -37,12 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import br.senai.sp.jandira.foodrecipe.service.AzureUploadService.uploadImageToAzure
-import com.example.tccbebe.R
-import com.example.tccbebe.model.CadastroItemRotina
 import com.example.tccbebe.model.CadastroRotina
-import com.example.tccbebe.model.CadastroUser
-import com.example.tccbebe.model.RegistroResp
 import com.example.tccbebe.service.AuthenticatedConexao
 import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
@@ -103,11 +94,11 @@ class DateVisualTransformation : VisualTransformation {
 @Composable
 fun CriarRotinaScreen(navegacao: NavHostController?) {
     // Lista de itens de rotina
-    var itensRotina = remember { mutableStateOf(listOf(ItemRotina())) }
-    
+    val itensRotina = remember { mutableStateOf(listOf(ItemRotina())) }
+
     // Estados para validação geral
-    var showErrorDialog = remember { mutableStateOf(false) }
-    var errorMessage = remember { mutableStateOf("") }
+    val showErrorDialog = remember { mutableStateOf(false) }
+    val errorMessage = remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val clientApi = AuthenticatedConexao(context).getRotinaService()
@@ -751,10 +742,20 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                                         if (httpResp.isSuccessful) {
                                             val respBody = httpResp.body()
                                             if (respBody != null) {
-                                                SessionManager.saveUserId(
-                                                    context = context,
-                                                    userId = respBody.data.idUser
-                                                )
+                                                // Salva o ID da rotina recém criada para destacá-la na tela de listagem
+                                                try {
+                                                    SessionManager.saveRotinaId(context, respBody.data.id_rotina)
+                                                } catch (_: Exception) {
+                                                }
+
+                                                // Mantém também o userId salvo caso o servidor retorne (opcional)
+                                                try {
+                                                    SessionManager.saveUserId(
+                                                        context = context,
+                                                        userId = respBody.data.idUser
+                                                    )
+                                                } catch (_: Exception) {
+                                                }
                                             }
 
                                             withContext(Dispatchers.Main) {

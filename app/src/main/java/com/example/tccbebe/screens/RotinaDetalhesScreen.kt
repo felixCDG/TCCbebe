@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import com.example.tccbebe.R
 import com.example.tccbebe.model.CadastroRotina
 import com.example.tccbebe.service.AuthenticatedConexao
+import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -53,52 +54,77 @@ fun RotinaDetalhesScreen(navegacao: NavHostController?) {
     LaunchedEffect(Unit) {
         val client = AuthenticatedConexao(context).getRotinaService()
         try {
-            // Execute network call on IO and capture response, then assign state on Main
-            val response = withContext(Dispatchers.IO) {
-                client.getAllRotinas().execute()
-            }
+            // Get logged in user id from SessionManager
+            val userId = SessionManager.getUserId(context)
+            if (userId <= 0) {
+                Log.w("RotinaDetalhes", "User id inválido: $userId")
+                Toast.makeText(context, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
+            } else {
+                // Execute network call on IO and capture response, then assign state on Main
+                val response = withContext(Dispatchers.IO) {
+                    client.getUserRotinas(userId).execute()
+                }
 
-            Log.i("RotinaDetalhes", "HTTP code=${response.code()} message=${response.message()}")
+                Log.i("RotinaDetalhes", "HTTP code=${response.code()} message=${response.message()}")
 
-            if (response.isSuccessful) {
-                val wrapper = response.body()
-                Log.i("RotinaDetalhes", "wrapper==null? ${wrapper == null}")
-                if (wrapper == null) {
+                if (response.isSuccessful) {
+                    val wrapper = response.body()
+                    Log.i("RotinaDetalhes", "wrapper==null? ${wrapper == null}")
+                    if (wrapper == null) {
+                        try {
+                            val raw = response.raw()
+                            Log.i("RotinaDetalhes", "raw response: $raw")
+                            val eb = response.errorBody()
+                            if (eb != null) {
+                                val s = eb.string()
+                                Log.i("RotinaDetalhes", "errorBody: $s")
+                            }
+                        } catch (_: Exception) {
+                            // ignore
+                        }
+                    }
+                    val bodyList = wrapper?.data ?: emptyList()
+                    // Ordena da mais recente para a mais antiga usando heurísticas sobre data/hora retornadas
+                    val sorted = bodyList.sortedWith(compareByDescending<CadastroRotina> {
+                        parseRotinaToEpochMillis(it) ?: Long.MIN_VALUE
+                    })
+                    // Se houver uma rotina recém-criada salva em sessão, priorizá-la
+                    val rotinaRecenteId = SessionManager.getRotinaId(context)
+                    val reordered = if (rotinaRecenteId > 0) {
+                        val mutable = sorted.toMutableList()
+                        val idx = mutable.indexOfFirst { it.id_rotina == rotinaRecenteId }
+                        if (idx > 0) {
+                            val item = mutable.removeAt(idx)
+                            mutable.add(0, item)
+                        }
+                        // limpa o id salvo para não repetir a priorização
+                        try { SessionManager.clearRotinaId(context) } catch (_: Exception) { }
+                        mutable.toList()
+                    } else {
+                        sorted
+                    }
+
+                    rotinas.clear()
+                    rotinas.addAll(reordered)
+
+                    // Log and Toast for debugging
+                    Log.i("RotinaDetalhes", "Rotinas carregadas: ${bodyList.size}")
+                    Toast.makeText(context, "Rotinas carregadas: ${bodyList.size}", Toast.LENGTH_SHORT).show()
+
+                    // Log formatted values for cada rotina
                     try {
-                        val raw = response.raw()
-                        Log.i("RotinaDetalhes", "raw response: $raw")
-                        val eb = response.errorBody()
-                        if (eb != null) {
-                            val s = eb.string()
-                            Log.i("RotinaDetalhes", "errorBody: $s")
+                        for (r in sorted) {
+                            val formattedDate = formatDateForDisplay(r.data_rotina, r.hora)
+                            val formattedTime = formatTimeForDisplay(r.hora, r.data_rotina)
+                            Log.i("ROTINA_PARSE", "id=${r.id_rotina} rawDate='${r.data_rotina}' rawHora='${r.hora}' -> formatted='${formattedDate} ${formattedTime}'")
                         }
                     } catch (_: Exception) {
-                        // ignore
                     }
+                } else {
+                    // handle non-successful response if needed
+                    val eb = response.errorBody()?.string()
+                    Log.w("RotinaDetalhes", "Falha ao obter rotinas para user=$userId: code=${response.code()} body=$eb")
                 }
-                val bodyList = wrapper?.data ?: emptyList()
-                // Ordena da mais recente para a mais antiga usando heurísticas sobre data/hora retornadas
-                val sorted = bodyList.sortedWith(compareByDescending<CadastroRotina> {
-                    parseRotinaToEpochMillis(it) ?: Long.MIN_VALUE
-                })
-                rotinas.clear()
-                rotinas.addAll(sorted)
-
-                // Log and Toast for debugging
-                Log.i("RotinaDetalhes", "Rotinas carregadas: ${bodyList.size}")
-                Toast.makeText(context, "Rotinas carregadas: ${bodyList.size}", Toast.LENGTH_SHORT).show()
-
-                // Log formatted values for each rotina to help debugging
-                try {
-                    for (r in sorted) {
-                        val formattedDate = formatDateForDisplay(r.data_rotina, r.hora)
-                        val formattedTime = formatTimeForDisplay(r.hora, r.data_rotina)
-                        Log.i("ROTINA_PARSE", "id=${r.id_rotina} rawDate='${r.data_rotina}' rawHora='${r.hora}' -> formatted='${formattedDate} ${formattedTime}'")
-                    }
-                } catch (_: Exception) {
-                }
-            } else {
-                // handle non-successful response if needed
             }
         } catch (_: Exception) {
             // Log exception
@@ -225,7 +251,7 @@ fun RotinaDetalhesScreen(navegacao: NavHostController?) {
                             item {
                                 // Debug header
                                 Text(text = "Encontradas: ${rotinas.size}", color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
-                                Text(text = rotinas.first().toString(), color = Color.DarkGray, fontSize = 12.sp, modifier = Modifier.padding(bottom = 12.dp))
+                                // Removido texto de debug que imprimia o primeiro objeto de rotina
                             }
 
                             itemsIndexed(rotinas) { index: Int, rotina: CadastroRotina ->
