@@ -256,6 +256,44 @@ fun ChatIndividualScreen(
                 }
             }
             
+            // Mostrar erro de envio (não ocupando a tela inteira) acima do campo de entrada
+            uiState.sendErrorMessage?.let { sendError ->
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE0E0)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = sendError,
+                                color = Color(0xFFB00020),
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            TextButton(onClick = {
+                                // Tentar reenviar a última mensagem pendente
+                                viewModel.uiState.value.lastPendingMessageContent?.let { pending ->
+                                    if (pending.isNotBlank()) {
+                                        println("📱 [UI] Reenviando mensagem pendente: '$pending'")
+                                        viewModel.enviarMensagem(pending, contatoId)
+                                    }
+                                }
+                                viewModel.limparSendErro()
+                            }) {
+                                Text(text = "Reenviar")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
             // Campo de entrada de mensagem
             Row(
                 modifier = Modifier
@@ -304,7 +342,9 @@ fun ChatIndividualScreen(
                         if (mensagemTexto.isNotBlank()) {
                             println("📱 [UI] Enviando mensagem: '$mensagemTexto' para contato $contatoId")
                             viewModel.enviarMensagem(mensagemTexto, contatoId)
+                            // Guardar o texto no ViewModel como pending para retry (o ViewModel já faz isso)
                             mensagemTexto = ""
+                            viewModel.limparSendErro()
                         } else {
                             println("📱 [UI] Tentativa de enviar mensagem vazia")
                         }

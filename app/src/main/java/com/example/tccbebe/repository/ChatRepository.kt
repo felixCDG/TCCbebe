@@ -120,13 +120,37 @@ class ChatRepository(private val context: Context) {
                 val apiResponse = response.body()
                 println("📤 [REPO] API Response success: ${apiResponse?.success}")
                 
+                // Caso ideal: sucesso explicitamente true com dados
                 if (apiResponse?.success == true && apiResponse.data != null) {
                     println("✅ [REPO] Mensagem enviada com sucesso: ID=${apiResponse.data.id}")
                     Result.success(apiResponse.data)
+                } else if (apiResponse?.data != null) {
+                    // Alguns backends retornam data mesmo quando `success` vem como false
+                    println("✅ [REPO] Resposta contém 'data' mesmo sem flag de sucesso: usando data retornada")
+                    Result.success(apiResponse.data)
                 } else {
-                    val errorMsg = apiResponse?.message ?: "Erro ao enviar mensagem"
-                    println("❌ [REPO] Erro na resposta: $errorMsg")
-                    Result.failure(Exception(errorMsg))
+                    // Tratamento tolerante: aceitar criação quando HTTP indica created (201)
+                    // ou quando a mensagem do servidor fala em "criado"/"criada"/"Item Criado"
+                    val mensagemServidor = apiResponse?.message ?: ""
+                    val createdByMessage = mensagemServidor.contains("criad", ignoreCase = true) || mensagemServidor.contains("created", ignoreCase = true)
+
+                    if (response.code() == 201 || createdByMessage) {
+                        println("✅ [REPO] Resposta indica criação apesar de não retornar 'data' - construindo mensagem localmente")
+                        // Construir uma Mensagem local com os dados do request para não perder a exibição na UI
+                        val generatedMensagem = Mensagem(
+                            id = "generated_${System.currentTimeMillis()}",
+                            conteudo = conteudo,
+                            id_chat = chatId,
+                            id_user = userId,
+                            created_at = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date()),
+                            remetente = "Você"
+                        )
+                        Result.success(generatedMensagem)
+                    } else {
+                        val errorMsg = apiResponse?.message ?: "Erro ao enviar mensagem"
+                        println("❌ [REPO] Erro na resposta: $errorMsg")
+                        Result.failure(Exception(errorMsg))
+                    }
                 }
             } else {
                 val errorMsg = "Erro HTTP: ${response.code()} - ${response.message()}"

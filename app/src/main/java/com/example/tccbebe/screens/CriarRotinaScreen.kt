@@ -1,6 +1,7 @@
 package br.senai.sp.jandira.telarotina.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -708,6 +709,11 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                 // Criar Button
                 Button(
                     onClick = {
+                        // Validate fields before sending to API
+                        if (!validarCampos()) {
+                            return@Button
+                        }
+
                         GlobalScope.launch(Dispatchers.IO) {
                             try {
 
@@ -724,7 +730,6 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                                     )
 
                                     val cliente = CadastroRotina(
-
                                         id_rotina = 0,
                                         titulo_rotina = primeiroItem.tituloGeral.trim(),
                                         cor = primeiroItem.cor, // Enviando a cor selecionada
@@ -736,17 +741,36 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                                     )
 
 
-                                    val response = clientApi.cadastrarRotina(cliente).await()
-                                    Log.i("API_CADASTRO", "Resposta: $response")
+                                    try {
+                                        Log.i("API_CADASTRO_REQ", "Enviando cliente=$cliente")
+                                        val httpResp = clientApi.cadastrarRotina(cliente).execute()
+                                        val code = httpResp.code()
+                                        val err = try { httpResp.errorBody()?.string() } catch (_: Exception) { null }
+                                        Log.i("API_CADASTRO_HTTP", "code=$code body=${httpResp.body()} errorBody=$err")
 
-                                    SessionManager.saveUserId(
-                                        context = context,
-                                        userId = response.data.idUser
-                                    )
+                                        if (httpResp.isSuccessful) {
+                                            val respBody = httpResp.body()
+                                            if (respBody != null) {
+                                                SessionManager.saveUserId(
+                                                    context = context,
+                                                    userId = respBody.data.idUser
+                                                )
+                                            }
 
-
-                                    withContext(Dispatchers.Main) {
-                                        navegacao?.navigate("home")
+                                            withContext(Dispatchers.Main) {
+                                                navegacao?.navigate("home")
+                                            }
+                                        } else {
+                                            // Show toast on main with server message if possible
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(context, "Erro ao criar rotina: ${err ?: "HTTP $code"}", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("API_CADASTRO", "Exceção ao chamar API: ${e.message}", e)
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(context, "Erro de rede: ${e.message}", Toast.LENGTH_LONG).show()
+                                        }
                                     }
                                 }
 

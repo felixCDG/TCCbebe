@@ -15,6 +15,8 @@ data class ChatUiState(
     val mensagens: List<Mensagem> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val sendErrorMessage: String? = null,
+    val lastPendingMessageContent: String? = null,
     val isEnviandoMensagem: Boolean = false
 )
 
@@ -96,8 +98,9 @@ class ChatViewModel(private val context: Context) : ViewModel() {
             println("📤 [CHAT] Enviando mensagem: '$conteudo' para chat $chatId como usuário $userId")
             
             // Criar mensagem temporária para mostrar imediatamente na UI
+            val tempId = "temp_${System.currentTimeMillis()}"
             val mensagemTemporaria = Mensagem(
-                id = "temp_${System.currentTimeMillis()}",
+                id = tempId,
                 conteudo = conteudo,
                 id_chat = chatId,
                 id_user = userId,
@@ -108,29 +111,43 @@ class ChatViewModel(private val context: Context) : ViewModel() {
             // Adicionar mensagem temporária à lista
             val mensagensAtuais = _uiState.value.mensagens.toMutableList()
             mensagensAtuais.add(mensagemTemporaria)
-            _uiState.value = _uiState.value.copy(mensagens = mensagensAtuais)
+            _uiState.value = _uiState.value.copy(mensagens = mensagensAtuais, lastPendingMessageContent = conteudo)
             println("📝 [CHAT] Mensagem temporária adicionada à UI: ${mensagemTemporaria.id}")
             
             repository.enviarMensagem(conteudo, chatId, userId)
                 .onSuccess { mensagem ->
                     println("✅ [CHAT] Mensagem enviada com sucesso: ${mensagem.id}")
                     println("✅ [CHAT] Conteúdo: '${mensagem.conteudo}' - Chat: ${mensagem.id_chat}")
-                    _uiState.value = _uiState.value.copy(isEnviandoMensagem = false)
-                    
-                    // Remover mensagem temporária e recarregar para pegar a mensagem real
-                    println("🔄 [CHAT] Recarregando mensagens após envio...")
-                    carregarMensagens(chatId)
+
+                    // Substituir mensagem temporária pela mensagem retornada (se encontrada)
+                    val updatedList = _uiState.value.mensagens.toMutableList()
+                    val index = updatedList.indexOfFirst { it.id == tempId }
+                    if (index != -1) {
+                        updatedList[index] = mensagem
+                        println("🔁 [CHAT] Mensagem temporária substituída pela mensagem do servidor em index $index")
+                    } else {
+                        // Se por algum motivo a temp não existir, adicionar a mensagem retornada
+                        updatedList.add(mensagem)
+                        println("➕ [CHAT] Mensagem retornada adicionada à lista")
+                    }
+
+                    _uiState.value = _uiState.value.copy(
+                        mensagens = updatedList.sortedBy { it.created_at },
+                        isEnviandoMensagem = false,
+                        errorMessage = null,
+                        lastPendingMessageContent = null,
+                        sendErrorMessage = null
+                    )
                 }
                 .onFailure { exception ->
                     println("❌ [CHAT] Erro ao enviar mensagem: ${exception.message}")
                     println("❌ [CHAT] Stack trace: ${exception.stackTrace?.take(3)?.joinToString()}")
                     
-                    // Remover mensagem temporária em caso de erro
-                    val mensagensSemTemp = _uiState.value.mensagens.filter { !it.id.startsWith("temp_") }
+                    // Em vez de remover a mensagem temporária, mantemos ela na UI para permitir reintento
                     _uiState.value = _uiState.value.copy(
-                        mensagens = mensagensSemTemp,
                         isEnviandoMensagem = false,
-                        errorMessage = "Erro ao enviar mensagem: ${exception.message}"
+                        sendErrorMessage = "Erro ao enviar mensagem: ${exception.message}",
+                        lastPendingMessageContent = conteudo
                     )
                 }
         }
@@ -144,15 +161,29 @@ class ChatViewModel(private val context: Context) : ViewModel() {
             // Isso simplifica a lógica e funciona com o backend atual
             println("🔄 [CHAT] Iniciando chat com contato ID: $contatoId ($contatoNome)")
             println("🔄 [CHAT] Usuário atual: ${getCurrentUserId()}")
-            carregarMensagens(contatoId)
-        }
-    }
-    
+
+            // Primeiro, tentar obter um Chat com esse ID — alguns backends usam um chatId separado
+            repository.getChatById(contatoId)
+                .onSuccess { chat ->
+                    println("🔍 [CHAT] Chat encontrado para id $contatoId -> chat.id=${chat.id}")
+                    carregarMensagens(chat.id)
+                }
+                .onFailure {
+                    // Se não houver chat com esse id, usar o contatoId como chatId (fallback)
+                    println("🔍 [CHAT] Nenhum chat encontrado para id $contatoId, usando como chatId fallback")
+                    carregarMensagens(contatoId)
+                }
+         }
+     }
+
     fun limparErro() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
     
-    
+    fun limparSendErro() {
+        _uiState.value = _uiState.value.copy(sendErrorMessage = null)
+    }
+
     // Método para recarregar mensagens
     fun recarregarMensagens(chatId: String) {
         carregarMensagens(chatId)
