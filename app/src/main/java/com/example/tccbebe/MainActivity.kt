@@ -1,5 +1,6 @@
 package com.example.tccbebe
 
+import CalendarioScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,12 +23,12 @@ import androidx.compose.animation.slideOutHorizontally
 import br.senai.sp.jandira.cadastroclinica.screens.ClinicaRegistrationScreen
 import br.senai.sp.jandira.cadastroclinica.screens.HomeClinicaScreen
 import br.senai.sp.jandira.telarotina.screens.CriarRotinaScreen
+import br.senai.sp.jandira.telarotina.screens.RotinaDetalhesScreen
 import com.example.tccbebe.screens.BabyIAScreen
 import com.example.tccbebe.screens.CadastroBebe
 import com.example.tccbebe.screens.CadastroBebeNovo
 import com.example.tccbebe.screens.CadastroResponsavelNovo
 import com.example.tccbebe.screens.Cadastroscreen
-import com.example.tccbebe.screens.CalendarioScreen
 import com.example.tccbebe.screens.ChatIndividualScreen
 import com.example.tccbebe.screens.ContatosScreen
 import com.example.tccbebe.screens.HomeScreen
@@ -85,6 +86,7 @@ class MainActivity : ComponentActivity() {
                    }
                    composable(route = "videochamada") { VideoChamadaScreen(navegacao = navegacao) }
                     composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
+                    composable(route = "telarotina"){ RotinaDetalhesScreen( navegacao) }
                 }
             }
 

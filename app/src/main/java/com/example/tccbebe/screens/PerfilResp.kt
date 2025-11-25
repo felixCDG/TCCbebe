@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -58,7 +59,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -210,254 +213,282 @@ fun PerfilResp(navegacao: NavHostController?) {
                     containerColor = Color(0xFFFFFFFF)
                 )
             ) {
-                Column (
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxSize(),
-                ) {
-                    Column (
+                // Novo layout interno do Card: topo em gradiente, título, avatar circular com botão de edição, campos e botão
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // Top gradient header
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(Color(0xFF2C91DE), Color(0xFFAEDCFF))
+                                )
+                            )
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
+                    ) {
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Title (nome ou placeholder)
                         Text(
-                            modifier = Modifier
-                                .padding(top = 12.dp),
-                            text = nomeState.value,
+                            text = if (nomeState.value.isBlank()) "NOME DO RESPONSAVEL" else nomeState.value,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp
+                            fontSize = 26.sp
                         )
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(125.dp)
-                        )
-                        IconButton(
-                            onClick = {}
-                        ) {
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Avatar com botão de edição sobreposto
+                        Box(modifier = Modifier.size(140.dp), contentAlignment = Alignment.BottomEnd) {
                             Icon(
-                                imageVector = Icons.Default.Create,
-                                contentDescription = "",
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = Color.LightGray,
                                 modifier = Modifier
-                                    .size(25.dp)
+                                    .size(140.dp)
+                                    .clip(CircleShape)
                             )
+
+                            IconButton(
+                                onClick = { /* ação de editar avatar (atualmente vazio) */ },
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color.White, shape = CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Create,
+                                    contentDescription = "Editar",
+                                    tint = Color(0xFF2C91DE)
+                                )
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
                             text = dataNState.value,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 17.sp
+                            fontSize = 16.sp
                         )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                    ) {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "Nome",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = nomeState.value,
-                            onValueChange = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    width = 2.dp, // 👈 tamanho da borda
-                                    color = Color(0xFF2C91DE),
-                                    shape = RoundedCornerShape(30.dp)
-                                ),
-                            shape = RoundedCornerShape(30.dp),
-                            placeholder = {
-                                Text("000.000.000-00")
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0x65AEDCFF),
-                                unfocusedContainerColor = Color(0x65AEDCFF)
-                            ),
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "CPF",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = cpfState.value,
-                            onValueChange = {
-                                cpfState.value = it
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    width = 2.dp, // 👈 tamanho da borda
-                                    color = Color(0xFF2C91DE),
-                                    shape = RoundedCornerShape(30.dp)
-                                ),
-                            shape = RoundedCornerShape(30.dp),
-                            placeholder = {
-                                Text("000.000.000-00")
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0x65AEDCFF),
-                                unfocusedContainerColor = Color(0x65AEDCFF)
-                            ),
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "TELEFONE",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = telefoneState.value,
-                            onValueChange = {
-                                telefoneState.value = it
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    width = 2.dp, // 👈 tamanho da borda
-                                    color = Color(0xFF2C91DE),
-                                    shape = RoundedCornerShape(30.dp)
-                                ),
-                            shape = RoundedCornerShape(30.dp),
-                            placeholder = {
-                                Text("(00) 00000-0000")
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0x65AEDCFF),
-                                unfocusedContainerColor = Color(0x65AEDCFF)
-                            ),
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "CEP",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = cepState.value,
-                            onValueChange = {
-                                cepState.value = it
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    width = 2.dp, // 👈 tamanho da borda
-                                    color = Color(0xFF2C91DE),
-                                    shape = RoundedCornerShape(30.dp)
-                                ),
-                            shape = RoundedCornerShape(30.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Telefone"
-                                )
-                            },
-                            placeholder = {
-                                Text("cep")
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0x65AEDCFF),
-                                unfocusedContainerColor = Color(0x65AEDCFF)
-                            ),
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "Email",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        OutlinedTextField(
-                            value = emailState.value,
-                            onValueChange = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    width = 2.dp, // 👈 tamanho da borda
-                                    color = Color(0xFF2C91DE),
-                                    shape = RoundedCornerShape(30.dp)
-                                ),
-                            shape = RoundedCornerShape(30.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Email,
-                                    contentDescription = "email"
-                                )
-                            },
-                            placeholder = {
-                                Text("email")
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0x65AEDCFF),
-                                unfocusedContainerColor = Color(0x65AEDCFF)
-                            ),
-                        )
-                        Spacer(modifier = Modifier.height(34.dp))
+
+                        Spacer(modifier = Modifier.height(18.dp))
+
                         Column(
                             modifier = Modifier
-                                .fillMaxSize(),
-                            horizontalAlignment = Alignment.End
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
                         ) {
-
-                            val context = LocalContext.current
-
-                            Button(
-                                onClick = {
-
-                                },
-                                colors = ButtonDefaults.buttonColors(Color(0xFFAEDCFF)),
-                                shape = RoundedCornerShape(30.dp),
+                            // Nome
+                            Text(
+                                text = "Nome",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedTextField(
+                                value = nomeState.value,
+                                onValueChange = {},
                                 modifier = Modifier
-                                    .padding(bottom = 70.dp)
-                                    .width(270.dp)
+                                    .fillMaxWidth()
                                     .border(
-                                        width = 2.dp, // 👈 tamanho da borda
+                                        width = 2.dp,
                                         color = Color(0xFF2C91DE),
-                                        shape = RoundedCornerShape(38.dp)
+                                        shape = RoundedCornerShape(30.dp)
                                     ),
-                            ) {
-                                Row (
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End
-                                ){
-                                    Text(
-                                        text = "PERFIL DO BEBE",
-                                        color = Color.Black,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
-                                    )
-                                    Spacer(modifier = Modifier .width(6.dp))
+                                shape = RoundedCornerShape(30.dp),
+                                placeholder = { Text("Nome") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0x65AEDCFF),
+                                    unfocusedContainerColor = Color(0x65AEDCFF)
+                                ),
+                                singleLine = true
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // CPF
+                            Text(
+                                text = "CPF",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedTextField(
+                                value = cpfState.value,
+                                onValueChange = { cpfState.value = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(
+                                        width = 2.dp,
+                                        color = Color(0xFF2C91DE),
+                                        shape = RoundedCornerShape(30.dp)
+                                    ),
+                                shape = RoundedCornerShape(30.dp),
+                                placeholder = { Text("000.000.000-00") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0x65AEDCFF),
+                                    unfocusedContainerColor = Color(0x65AEDCFF)
+                                ),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Telefone
+                            Text(
+                                text = "TELEFONE",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedTextField(
+                                value = telefoneState.value,
+                                onValueChange = { telefoneState.value = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(
+                                        width = 2.dp,
+                                        color = Color(0xFF2C91DE),
+                                        shape = RoundedCornerShape(30.dp)
+                                    ),
+                                shape = RoundedCornerShape(30.dp),
+                                placeholder = { Text("(00) 00000-0000") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0x65AEDCFF),
+                                    unfocusedContainerColor = Color(0x65AEDCFF)
+                                ),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // E-mail
+                            Text(
+                                text = "E-MAIL",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedTextField(
+                                value = emailState.value,
+                                onValueChange = {},
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(
+                                        width = 2.dp,
+                                        color = Color(0xFF2C91DE),
+                                        shape = RoundedCornerShape(30.dp)
+                                    ),
+                                shape = RoundedCornerShape(30.dp),
+                                leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowForward,
-                                        contentDescription = "",
-                                        tint = Color(0xFF000000),
-                                        modifier = Modifier
-                                            .size(20.dp)
+                                        imageVector = Icons.Default.Email,
+                                        contentDescription = "email"
                                     )
+                                },
+                                placeholder = { Text("email@exemplo.com") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0x65AEDCFF),
+                                    unfocusedContainerColor = Color(0x65AEDCFF)
+                                ),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // CEP
+                            Text(
+                                text = "CEP",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedTextField(
+                                value = cepState.value,
+                                onValueChange = { cepState.value = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(
+                                        width = 2.dp,
+                                        color = Color(0xFF2C91DE),
+                                        shape = RoundedCornerShape(30.dp)
+                                    ),
+                                shape = RoundedCornerShape(30.dp),
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = "CEP"
+                                    )
+                                },
+                                placeholder = { Text("00000-000") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0x65AEDCFF),
+                                    unfocusedContainerColor = Color(0x65AEDCFF)
+                                ),
+                                singleLine = true
+                            )
+
+                            Spacer(modifier = Modifier.height(18.dp))
+
+                            // Botão centralizado
+                            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Button(
+                                    onClick = { /* ação do botão */ },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFAEDCFF)),
+                                    shape = RoundedCornerShape(30.dp),
+                                    modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .width(270.dp)
+                                        .border(
+                                            width = 2.dp,
+                                            color = Color(0xFF2C91DE),
+                                            shape = RoundedCornerShape(38.dp)
+                                        ),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ){
+                                        Text(
+                                            text = "PERFIL DO BEBE",
+                                            color = Color.Black,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowForward,
+                                            contentDescription = "",
+                                            tint = Color(0xFF000000),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(3.dp))
+
+                            Spacer(modifier = Modifier.height(24.dp))
 
                         }
+
                     }
+
                 }
             }
         }

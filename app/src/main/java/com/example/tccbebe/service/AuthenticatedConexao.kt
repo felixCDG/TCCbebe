@@ -23,9 +23,6 @@ class AuthenticatedConexao(private val context: Context) {
         return authenticatedRetrofit.create(RegistroResp::class.java)
     }
 
-    fun getItemRotinaService(): CadstroItemRotina {
-        return authenticatedRetrofit.create(CadstroItemRotina::class.java)
-    }
 
     fun getRotinaService(): CadstroRotina {
         return authenticatedRetrofit.create(CadstroRotina::class.java)

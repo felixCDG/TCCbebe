@@ -460,7 +460,7 @@ fun RoutineSection(navController: NavHostController?) {
     }
     Spacer(Modifier.height(8.dp))
     Button(
-        onClick = { navController?.navigate("ItemR") },
+        onClick = { navController?.navigate("telarotina") },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A90E2))
     ) {
         Text("Ver rotina")

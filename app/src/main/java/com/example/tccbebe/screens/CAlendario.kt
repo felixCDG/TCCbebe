@@ -1,4 +1,6 @@
-package com.example.tccbebe.screens
+import com.example.tccbebe.screens.EventoDialogComApi
+
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

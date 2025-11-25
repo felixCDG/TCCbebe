@@ -36,15 +36,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import br.senai.sp.jandira.foodrecipe.service.AzureUploadService.uploadImageToAzure
 import com.example.tccbebe.R
 import com.example.tccbebe.model.CadastroItemRotina
 import com.example.tccbebe.model.CadastroRotina
 import com.example.tccbebe.model.CadastroUser
+import com.example.tccbebe.model.RegistroResp
 import com.example.tccbebe.service.AuthenticatedConexao
 import com.example.tccbebe.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.await
 import kotlin.String
 
@@ -106,8 +109,7 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
     var errorMessage = remember { mutableStateOf("") }
 
     val context = LocalContext.current
-    val clienteApi = AuthenticatedConexao(context).getItemRotinaService()
-    val rotinaApi = AuthenticatedConexao(context).getRotinaService()
+    val clientApi = AuthenticatedConexao(context).getRotinaService()
 
     // Cores disponíveis para seleção
     val coresDisponiveis = listOf(
@@ -122,11 +124,11 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
     )
 
     // Função para adicionar novo item de rotina
-    fun adicionarNovoItem() {
+   /* fun adicionarNovoItem() {
         val novosItens = itensRotina.value.toMutableList()
         novosItens.add(ItemRotina())
         itensRotina.value = novosItens
-    }
+    }*/
     
     // Função para remover item de rotina
     fun removerItem(index: Int) {
@@ -255,9 +257,7 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                 erros.add("• Item ${index + 1}: Data inválida (use DD/MM/AAAA)")
                 isValid = false
             }
-            
-            // Atualizar o item com os erros
-            atualizarItem(index, itemAtualizado)
+
         }
         
         // Se houver erros, mostrar diálogo
@@ -668,7 +668,7 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
             horizontalAlignment = Alignment.Start
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-            
+
             // Title
             Text(
                 text = "Crie uma\nnova Rotina",
@@ -678,9 +678,9 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                 color = Color.Black,
                 lineHeight = 28.sp
             )
-            
+
             Spacer(modifier = Modifier.height(40.dp))
-            
+
             // Lista de itens de rotina
             itensRotina.value.forEachIndexed { index, item ->
                 ItemRotinaCard(
@@ -695,161 +695,67 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                     showRemoveButton = itensRotina.value.size > 1
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Botões de ação
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Add Button
-                IconButton(
-                    onClick = { adicionarNovoItem() },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            Color(0xFF6C7CE7),
-                            RoundedCornerShape(20.dp)
-                        )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Adicionar item",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
                 
                 // Criar Button
                 Button(
                     onClick = {
-                        // Validar campos antes de enviar
-                        if (!validarCampos()) {
-                            Log.w("ROTINA_DEBUG", "❌ Validação falhou - campos obrigatórios não preenchidos")
-                            return@Button
-                        }
-
-                        // Primeiro criar a rotina principal com a cor do primeiro item
-                        val primeiroItem = itensRotina.value.first()
-                        val userId = SessionManager.getUserId(context)
-                        
-                        val rotinaPrincipal = CadastroRotina(
-                            id_rotina = 0,
-                            titulo = primeiroItem.tituloGeral.trim(),
-                            cor = primeiroItem.cor, // Enviando a cor selecionada
-                            idUser = userId
-                        )
-
-                        Log.i("ROTINA_DEBUG", "=== CRIANDO ROTINA PRINCIPAL ===")
-                        Log.i("ROTINA_DEBUG", "Título: '${rotinaPrincipal.titulo}'")
-                        Log.i("ROTINA_DEBUG", "Cor: '${rotinaPrincipal.cor}'")
-                        Log.i("ROTINA_DEBUG", "User ID: ${rotinaPrincipal.idUser}")
-
                         GlobalScope.launch(Dispatchers.IO) {
                             try {
-                                // Lista para coletar IDs dos itens criados
-                                val itemIdsCriados = mutableListOf<Int>()
 
-                                // Processar todos os itens para envio PRIMEIRO
+                                val primeiroItem = itensRotina.value.first()
+                                val idUser = SessionManager.getUserId(context)
+
                                 itensRotina.value.forEachIndexed { index, item ->
                                     // Converter data para formato da API (YYYY-MM-DD)
                                     val dataFormatada = convertDateToApiFormat(item.data.trim())
                                     val dataExibicao = formatDateForDisplay(item.data.trim())
-                                    Log.i("ROTINA_DEBUG", "Item ${index + 1} - Data dígitos: '${item.data.trim()}' -> Exibição: '$dataExibicao' -> API: '$dataFormatada'")
-                                    
-                                    val cliente = CadastroItemRotina(
-                                        id_item = 0,
-                                        titulo = item.titulo.trim(), // Usando o título do campo "Tarefa"
-                                        descricao = item.descricao.trim(),
-                                        data_rotina = dataFormatada,
-                                        hora = item.hora.trim(),
+                                    Log.i(
+                                        "ROTINA_DEBUG",
+                                        "Item ${index + 1} - Data dígitos: '${item.data.trim()}' -> Exibição: '$dataExibicao' -> API: '$dataFormatada'"
                                     )
 
-                                    // 🔍 LOGS DETALHADOS - DADOS DO BODY
-                                    Log.i("ROTINA_DEBUG", "=== DADOS SENDO ENVIADOS - ITEM ${index + 1} ===")
-                                    Log.i("ROTINA_DEBUG", "Body da requisição: $cliente")
-                                    Log.i("ROTINA_DEBUG", "id_item: ${cliente.id_item}")
-                                    Log.i("ROTINA_DEBUG", "titulo: '${cliente.titulo}'")
-                                    Log.i("ROTINA_DEBUG", "descricao: '${cliente.descricao}'")
-                                    Log.i("ROTINA_DEBUG", "data_rotina: '${cliente.data_rotina}'")
-                                    Log.i("ROTINA_DEBUG", "hora: '${cliente.hora}'")
+                                    val cliente = CadastroRotina(
 
-                                    try {
-                                        Log.i("ROTINA_DEBUG", "🚀 Fazendo chamada para API - Item ${index + 1}...")
-                                        val response = clienteApi.cadastrarItemR(cliente).await()
+                                        id_rotina = 0,
+                                        titulo_rotina = primeiroItem.tituloGeral.trim(),
+                                        cor = primeiroItem.cor, // Enviando a cor selecionada
+                                        idUser = idUser,
+                                        titulo_item = item.titulo.trim(), // Usando o título do campo "Tarefa"
+                                        descricao = item.descricao.trim(),
+                                        hora = item.hora.trim(),
+                                        data_rotina = dataFormatada,
+                                    )
 
-                                        Log.i("ROTINA_DEBUG", "=== RESPOSTA DA API - ITEM ${index + 1} ===")
-                                        Log.i("ROTINA_DEBUG", "✅ Resposta recebida: $response")
-                                        Log.i("ROTINA_DEBUG", "Status: ${response.status}")
-                                        Log.i("ROTINA_DEBUG", "Status Code: ${response.status_code}")
-                                        Log.i("ROTINA_DEBUG", "Mensagem: ${response.message}")
-                                        Log.i("ROTINA_DEBUG", "Data: ${response.data}")
 
-                                        // Coletar ID do item criado
-                                        if (response.status && response.data.id_item > 0) {
-                                            itemIdsCriados.add(response.data.id_item)
-                                            Log.i("ROTINA_DEBUG", "✅ ID do item ${index + 1} coletado: ${response.data.id_item}")
-                                        }
+                                    val response = clientApi.cadastrarRotina(cliente).await()
+                                    Log.i("API_CADASTRO", "Resposta: $response")
 
-                                    } catch (e: Exception) {
-                                        Log.e("ROTINA_DEBUG", "=== ERRO NA REQUISIÇÃO - ITEM ${index + 1} ===")
-                                        Log.e("ROTINA_DEBUG", "❌ Erro ao cadastrar: ${e.message}")
-                                        Log.e("ROTINA_DEBUG", "Tipo do erro: ${e.javaClass.simpleName}")
-                                        Log.e("ROTINA_DEBUG", "Stack trace: ${e.stackTrace.contentToString()}")
-                                        e.printStackTrace()
+                                    SessionManager.saveUserId(
+                                        context = context,
+                                        userId = response.data.idUser
+                                    )
+
+
+                                    withContext(Dispatchers.Main) {
+                                        navegacao?.navigate("home")
                                     }
-                                }
-
-                                // Agora criar a rotina principal com os IDs dos itens
-                                val rotinaPrincipalComItens = rotinaPrincipal.copy(idItens = itemIdsCriados)
-                                
-                                Log.i("ROTINA_DEBUG", "=== CRIANDO ROTINA PRINCIPAL COM IDS DOS ITENS ===")
-                                Log.i("ROTINA_DEBUG", "Título: '${rotinaPrincipalComItens.titulo}'")
-                                Log.i("ROTINA_DEBUG", "Cor: '${rotinaPrincipalComItens.cor}'")
-                                Log.i("ROTINA_DEBUG", "User ID: ${rotinaPrincipalComItens.idUser}")
-                                Log.i("ROTINA_DEBUG", "IDs dos itens: ${rotinaPrincipalComItens.idItens}")
-
-                                try {
-                                    Log.i("ROTINA_DEBUG", "🚀 Criando rotina principal...")
-                                    val rotinaResponse = rotinaApi.cadastrarRotina(rotinaPrincipalComItens).await()
-                                    
-                                    Log.i("ROTINA_DEBUG", "=== RESPOSTA ROTINA PRINCIPAL ===")
-                                    Log.i("ROTINA_DEBUG", "✅ Rotina criada: $rotinaResponse")
-                                    Log.i("ROTINA_DEBUG", "Status: ${rotinaResponse.status}")
-                                    Log.i("ROTINA_DEBUG", "Mensagem: ${rotinaResponse.message}")
-
-                                    // Salvar IDs no SessionManager
-                                    if (rotinaResponse.status) {
-                                        // Salvar ID da rotina (assumindo que vem na resposta)
-                                        // SessionManager.saveRotinaId(context, rotinaResponse.data.id_rotina)
-                                        
-                                        // Salvar IDs dos itens
-                                        SessionManager.saveItemIds(context, itemIdsCriados)
-                                        
-                                        Log.i("ROTINA_DEBUG", "✅ IDs salvos no SessionManager")
-                                        Log.i("ROTINA_DEBUG", "IDs dos itens salvos: $itemIdsCriados")
-                                    }
-
-                                } catch (e: Exception) {
-                                    Log.e("ROTINA_DEBUG", "=== ERRO NA CRIAÇÃO DA ROTINA PRINCIPAL ===")
-                                    Log.e("ROTINA_DEBUG", "❌ Erro ao criar rotina: ${e.message}")
-                                    Log.e("ROTINA_DEBUG", "Tipo do erro: ${e.javaClass.simpleName}")
-                                    e.printStackTrace()
                                 }
 
                             } catch (e: Exception) {
-                                Log.e("ROTINA_DEBUG", "=== ERRO GERAL ===")
-                                Log.e("ROTINA_DEBUG", "❌ Erro geral: ${e.message}")
-                                Log.e("ROTINA_DEBUG", "Tipo do erro: ${e.javaClass.simpleName}")
-                                e.printStackTrace()
+                                Log.e("API_CADASTRO", "Erro: ${e.message}")
                             }
                         }
-                        
-                        // Navegar após processar todos os itens
-                        navegacao?.navigate("login")
-                    },
+
+                      },
                     modifier = Modifier
                         .weight(1f)
                         .height(40.dp),
