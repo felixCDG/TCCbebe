@@ -23,12 +23,15 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -41,6 +44,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.TextField
 import androidx.navigation.NavHostController
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import java.net.URLEncoder
+import java.net.URLDecoder
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.tccbebe.service.Conexao
 
 @Composable
 fun SalaConsulta(navegacao: NavHostController?) {
@@ -163,7 +173,7 @@ fun CreateCallScreen(navegacao: NavHostController?) {
             Card(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(0.9f)) {
                 Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Entar na Chamada",
+                        text = "Entrar na Chamada",
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
@@ -172,6 +182,10 @@ fun CreateCallScreen(navegacao: NavHostController?) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     val roomName = remember { mutableStateOf("") }
+                    val context = LocalContext.current
+                    val isLoading = remember { mutableStateOf(false) }
+                    val scope = rememberCoroutineScope()
+
                     TextField(
                         value = roomName.value,
                         onValueChange = { if (it.length <= 100) roomName.value = it },
@@ -183,16 +197,82 @@ fun CreateCallScreen(navegacao: NavHostController?) {
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
-                        onClick = { navegacao?.navigate("sala_nova") },
+                        onClick = {
+                            val trimmed = roomName.value.trim()
+                            if (trimmed.isEmpty()) {
+                                Toast.makeText(context, "Digite o nome da sala.", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+
+                            // Encode for safe transport in route and path
+                            val encoded = try {
+                                URLEncoder.encode(trimmed, "utf-8")
+                            } catch (_: Exception) {
+                                trimmed
+                            }
+
+                            // Prevent double clicks
+                            if (isLoading.value) return@Button
+
+                            isLoading.value = true
+
+                            scope.launch {
+                                try {
+                                    val conexao = Conexao()
+                                    val service = conexao.getRoomService()
+                                    val response = service.checkRoom(encoded)
+
+                                    if (response.isSuccessful) {
+                                        val body = response.body()
+                                        if (body != null && body.exists) {
+                                            // Room exists -> navigate
+                                            navegacao?.navigate("video/$encoded")
+                                        } else {
+                                            Toast.makeText(context, "Sala não encontrada.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else {
+                                        if (response.code() == 404) {
+                                            Toast.makeText(context, "Sala não encontrada.", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Erro ao verificar sala: ${response.code()}.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } catch (ex: Exception) {
+                                    Toast.makeText(context, "Falha de rede: ${ex.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                } finally {
+                                    isLoading.value = false
+                                }
+                            }
+
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F6BE4)),
                         shape = RoundedCornerShape(24.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "Entar na Chamada", color = Color.White, fontWeight = FontWeight.Bold)
+                        if (isLoading.value) {
+                            CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
+                        } else {
+                            Text(text = "Entrar na Chamada", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun VideoScreen(roomNameEncoded: String?) {
+    // Decode the room name if it was encoded into the route
+    val roomName = try {
+        roomNameEncoded?.let { URLDecoder.decode(it, "utf-8") }
+    } catch (_: Exception) {
+        roomNameEncoded
+    }
+
+    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(text = "Video - Sala: ${roomName ?: "—"}", fontSize = 20.sp, fontWeight = FontWeight.Medium)
     }
 }
 

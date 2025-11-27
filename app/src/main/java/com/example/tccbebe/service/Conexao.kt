@@ -41,6 +41,9 @@ class Conexao {
         return conexao.create(CadastroClinicaService::class.java)
     }
 
-
+    // Expose RoomService to allow checking whether a room exists before navigating
+    fun getRoomService(): RoomService {
+        return conexao.create(RoomService::class.java)
+    }
 
 }

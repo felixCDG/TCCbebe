@@ -31,6 +31,7 @@ import com.example.tccbebe.screens.CadastroResponsavelNovo
 import com.example.tccbebe.screens.Cadastroscreen
 import com.example.tccbebe.screens.ChatIndividualScreen
 import com.example.tccbebe.screens.ContatosScreen
+import com.example.tccbebe.screens.CreateCallScreen
 import com.example.tccbebe.screens.HomeScreen
 import com.example.tccbebe.screens.Loginscreen
 import com.example.tccbebe.screens.PerfilResp
@@ -87,6 +88,7 @@ class MainActivity : ComponentActivity() {
                    composable(route = "videochamada") { VideoChamadaScreen(navegacao = navegacao) }
                     composable(route = "itemR"){ CriarRotinaScreen( navegacao) }
                     composable(route = "telarotina"){ RotinaDetalhesScreen( navegacao) }
+                    composable(route = "call"){ CreateCallScreen( navegacao) }
                 }
             }
 

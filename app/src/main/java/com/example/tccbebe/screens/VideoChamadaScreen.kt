@@ -30,34 +30,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
-import com.example.tccbebe.repository.VideoChamadaRepository
-import kotlinx.coroutines.launch
 import java.util.UUID
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 @Composable
 fun VideoChamadaScreen(navegacao: NavHostController?, roomName: String? = null) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val videoChamadaRepository = remember { VideoChamadaRepository(context) }
-    val coroutineScope = rememberCoroutineScope()
-    
+
     var isMicMuted by remember { mutableStateOf(false) }
     var isCameraOff by remember { mutableStateOf(false) }
     var isConnecting by remember { mutableStateOf(false) }
     var isConnected by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var tokenData by remember { mutableStateOf<String?>(null) }
     var hasCameraPermission by remember { mutableStateOf(false) }
-    
+
     // Preview da câmera
     val previewView = remember { PreviewView(context) }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    val executor = remember { Executors.newSingleThreadExecutor() }
-    
+
     // Launcher para solicitar permissão da câmera
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -69,26 +60,26 @@ fun VideoChamadaScreen(navegacao: NavHostController?, roomName: String? = null) 
             Log.e("VIDEOCHAMADA", "Permissão da câmera negada")
         }
     }
-    
+
     // Verificar permissão da câmera
     LaunchedEffect(Unit) {
         hasCameraPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
-        
+
         if (!hasCameraPermission) {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
-    
+
     // Configurar câmera quando permissão for concedida
     LaunchedEffect(hasCameraPermission, isCameraOff) {
         if (hasCameraPermission && !isCameraOff) {
             val cameraProvider = cameraProviderFuture.get()
             val preview = CameraPreview.Builder().build()
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-            
+
             try {
                 cameraProvider.unbindAll()
                 preview.setSurfaceProvider(previewView.surfaceProvider)
@@ -106,397 +97,230 @@ fun VideoChamadaScreen(navegacao: NavHostController?, roomName: String? = null) 
             cameraProvider.unbindAll()
         }
     }
-    
+
     // Gerar nome da sala se não fornecido
     val currentRoomName = roomName ?: "sala-${UUID.randomUUID().toString().take(8)}"
-    
-    // Conectar à videochamada quando a tela carregar
-    LaunchedEffect(Unit) {
-        isConnecting = true
-        coroutineScope.launch {
-            videoChamadaRepository.gerarTokenVideoChamada(currentRoomName)
-                .onSuccess { response ->
-                    tokenData = response.token.token
-                    isConnected = true
-                    isConnecting = false
-                    Log.i("VIDEOCHAMADA", "Token gerado: ${response.token.token}")
-                    Log.i("VIDEOCHAMADA", "Sala: ${response.token.Room}")
-                    Log.i("VIDEOCHAMADA", "Identidade: ${response.token.indentity}")
-                    // Aqui você integraria com o SDK do Twilio Video
-                }
-                .onFailure { error ->
-                    errorMessage = error.message
-                    isConnecting = false
-                    Log.e("VIDEOCHAMADA", "Erro ao gerar token: ${error.message}")
-                }
-        }
-    }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF7986CB))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            // Área superior - Ícone de microfone
-            Row(
+            // Dois cards empilhados com tamanho igual usando weight
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.End
+                    .weight(1f),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                IconButton(
-                    onClick = { /* Ação do microfone */ },
+                // Conteúdo do card do médico
+                Column(
                     modifier = Modifier
-                        .size(48.dp)
-                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        Icons.Default.Mic,
-                        contentDescription = "Microfone",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-            
-            // Área central - Card do Dr. Souza
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Card principal do médico
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(400.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                ) {
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .size(200.dp)
+                            .background(Color.Black, CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
-                        // Avatar do médico
-                        Box(
-                            modifier = Modifier
-                                .size(200.dp)
-                                .background(Color.Black, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.Person,
-                                contentDescription = "Dr. Souza",
-                                tint = Color.White,
-                                modifier = Modifier.size(120.dp)
-                            )
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Dr. Souza",
+                            tint = Color.White,
+                            modifier = Modifier.size(120.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "Dr. Souza",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = when {
+                            isConnecting -> "Conectando..."
+                            isConnected -> "Conectado - Sala: $currentRoomName"
+                            errorMessage != null -> "Erro na conexão"
+                            else -> "Aguardando conexão"
+                        },
+                        fontSize = 14.sp,
+                        color = when {
+                            isConnecting -> Color.Yellow
+                            isConnected -> Color.Green
+                            errorMessage != null -> Color.Red
+                            else -> Color.Gray
                         }
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        // Nome do médico e status da conexão
-                        Text(
-                            text = "Dr. Souza",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        // Status da conexão
-                        Text(
-                            text = when {
-                                isConnecting -> "Conectando..."
-                                isConnected -> "Conectado - Sala: $currentRoomName"
-                                errorMessage != null -> "Erro na conexão"
-                                else -> "Aguardando conexão"
-                            },
-                            fontSize = 14.sp,
-                            color = when {
-                                isConnecting -> Color.Yellow
-                                isConnected -> Color.Green
-                                errorMessage != null -> Color.Red
-                                else -> Color.Gray
-                            }
-                        )
-                        
-                        Spacer(modifier = Modifier.weight(1f))
-                        
-                        // Botão de opções (três pontos)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            IconButton(
-                                onClick = { /* Opções */ }
-                            ) {
-                                Icon(
-                                    Icons.Default.MoreVert,
-                                    contentDescription = "Mais opções",
-                                    tint = Color.Gray
-                                )
-                            }
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        IconButton(onClick = { /* Opções */ }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Mais opções", tint = Color.Gray)
                         }
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                // Card menor - "Você" com controles de câmera
-                Card(
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(120.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        // Conteúdo principal
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Preview da câmera ou indicador de câmera desligada
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when {
+                        !hasCameraPermission -> {
                             Box(
                                 modifier = Modifier
-                                    .size(60.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (isCameraOff || !hasCameraPermission) Color.Gray else Color.Black
-                                    ),
+                                    .fillMaxSize()
+                                    .background(Color.Gray, RoundedCornerShape(16.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                when {
-                                    !hasCameraPermission -> {
-                                        Icon(
-                                            Icons.Default.Warning,
-                                            contentDescription = "Sem permissão",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                    isCameraOff -> {
-                                        Icon(
-                                            Icons.Default.VideocamOff,
-                                            contentDescription = "Câmera desligada",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                    else -> {
-                                        // Preview da câmera em miniatura
-                                        AndroidView(
-                                            factory = { previewView },
-                                            modifier = Modifier
-                                                .size(60.dp)
-                                                .clip(CircleShape)
-                                        )
-                                    }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        Icons.Default.Warning,
+                                        contentDescription = "Sem permissão",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(text = "Sem permissão de câmera", color = Color.White)
                                 }
                             }
-                            
-                            Spacer(modifier = Modifier.width(12.dp))
-                            
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = "Você",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Black
-                                )
-                                Text(
-                                    text = when {
-                                        !hasCameraPermission -> "Sem permissão"
-                                        isCameraOff -> "Câmera desligada"
-                                        else -> "Câmera ligada"
-                                    },
-                                    fontSize = 12.sp,
-                                    color = when {
-                                        !hasCameraPermission -> Color.Yellow
-                                        isCameraOff -> Color.Red
-                                        else -> Color.Green
-                                    }
-                                )
-                            }
-                            
-                            // Ícone de microfone
-                            Icon(
-                                if (isMicMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                                contentDescription = if (isMicMuted) "Microfone mutado" else "Microfone ligado",
-                                tint = if (isMicMuted) Color.Red else Color.Green,
-                                modifier = Modifier.size(20.dp)
-                            )
                         }
-                        
-                        // Botão de controle de câmera sobreposto
-                        IconButton(
-                            onClick = { 
-                                if (hasCameraPermission) {
-                                    isCameraOff = !isCameraOff
-                                    Log.i("VIDEOCHAMADA", "Câmera ${if (isCameraOff) "desligada" else "ligada"}")
-                                } else {
-                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                }
-                            },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .size(32.dp)
-                                .background(
-                                    if (isCameraOff) Color.Red.copy(alpha = 0.8f) else Color.Green.copy(alpha = 0.8f),
-                                    CircleShape
-                                )
-                        ) {
-                            Icon(
-                                if (isCameraOff) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                                contentDescription = if (isCameraOff) "Ligar câmera" else "Desligar câmera",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        
-                        // Overlay quando câmera está desligada
-                        if (isCameraOff) {
+                        isCameraOff -> {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
                                         Icons.Default.VideocamOff,
                                         contentDescription = "Câmera desligada",
                                         tint = Color.White,
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.size(48.dp)
                                     )
-                                    Text(
-                                        text = "Câmera\ndesligada",
-                                        color = Color.White,
-                                        fontSize = 10.sp,
-                                        textAlign = TextAlign.Center
-                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(text = "Câmera desligada", color = Color.White)
                                 }
                             }
                         }
+                        else -> {
+                            AndroidView(
+                                factory = { previewView },
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(16.dp))
+                            )
+                        }
+                    }
+
+                    // Nome e status no canto superior esquerdo do card
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Você",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = when {
+                                !hasCameraPermission -> "Sem permissão"
+                                isCameraOff -> "Câmera desligada"
+                                else -> "Câmera ligada"
+                            },
+                            fontSize = 12.sp,
+                            color = when {
+                                !hasCameraPermission -> Color.Yellow
+                                isCameraOff -> Color.Red
+                                else -> Color.Green
+                            }
+                        )
                     }
                 }
             }
-            
-            // Área inferior - Controles da chamada
-            Card(
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Barra de controles fora dos cards
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
+                IconButton(
+                    onClick = {
+                        if (hasCameraPermission) {
+                            isCameraOff = !isCameraOff
+                            Log.i("VIDEOCHAMADA", "Câmera ${if (isCameraOff) "desligada" else "ligada"}")
+                        } else {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                        .size(56.dp)
+                        .background(
+                            if (isCameraOff) Color.Red.copy(alpha = 0.85f) else Color.Green.copy(alpha = 0.85f),
+                            CircleShape
+                        )
                 ) {
-                    // Botão de câmera
-                    IconButton(
-                        onClick = { isCameraOff = !isCameraOff },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(
-                                if (isCameraOff) Color.Gray else Color.Transparent,
-                                CircleShape
-                            )
-                    ) {
-                        Icon(
-                            if (isCameraOff) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                            contentDescription = "Câmera",
-                            tint = if (isCameraOff) Color.White else Color.Gray,
-                            modifier = Modifier.size(28.dp)
+                    Icon(
+                        if (isCameraOff) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                        contentDescription = if (isCameraOff) "Ligar câmera" else "Desligar câmera",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                IconButton(
+                    onClick = { isMicMuted = !isMicMuted },
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(
+                            if (isMicMuted) Color.Red.copy(alpha = 0.85f) else Color.Green.copy(alpha = 0.85f),
+                            CircleShape
                         )
-                    }
-                    
-                    // Botão de microfone
-                    IconButton(
-                        onClick = { isMicMuted = !isMicMuted },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(
-                                if (isMicMuted) Color.Gray else Color.Transparent,
-                                CircleShape
-                            )
-                    ) {
-                        Icon(
-                            if (isMicMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                            contentDescription = "Microfone",
-                            tint = if (isMicMuted) Color.White else Color.Gray,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    
-                    // Botão de encerrar chamada
-                    IconButton(
-                        onClick = { 
-                            // Aqui você desconectaria do Twilio Video
-                            Log.i("VIDEOCHAMADA", "Encerrando chamada...")
-                            navegacao?.popBackStack()
-                        },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(Color.Red, CircleShape)
-                    ) {
-                        Icon(
-                            Icons.Default.CallEnd,
-                            contentDescription = "Encerrar chamada",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    
-                    // Botão de chat
-                    IconButton(
-                        onClick = { /* Abrir chat */ },
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Chat,
-                            contentDescription = "Chat",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    
-                    // Botão de mais opções
-                    IconButton(
-                        onClick = { /* Mais opções */ },
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "Mais opções",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
+                ) {
+                    Icon(
+                        if (isMicMuted) Icons.Default.MicOff else Icons.Default.Mic,
+                        contentDescription = if (isMicMuted) "Microfone mutado" else "Microfone ligado",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
             }
         }
@@ -505,6 +329,6 @@ fun VideoChamadaScreen(navegacao: NavHostController?, roomName: String? = null) 
 
 @Preview(showBackground = true)
 @Composable
-fun VideoChamadaScreenPreview() {
+fun VideoChamadaPreview() {
     VideoChamadaScreen(navegacao = null)
 }
