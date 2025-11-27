@@ -13,6 +13,7 @@ object SessionManager {
     private const val KEY_ROTINA_ID = "key_rotina_id"
     private const val KEY_ITEM_IDS = "key_item_ids"
 
+
     // ------------------- USER ID -------------------
     fun saveUserId(context: Context, userId: Int) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -120,6 +121,7 @@ object SessionManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().remove(KEY_ITEM_IDS).apply()
     }
+
 
     // ------------------- CLEAR ALL -------------------
     fun clearAll(context: Context) {

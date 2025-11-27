@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -612,7 +613,7 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo_baby),
+                        painter = painterResource(id = com.example.tccbebe.R.drawable.logo_baby),
                         contentDescription = "S♥S Baby Logo",
                         modifier = Modifier
                             .size(80.dp)
@@ -631,7 +632,7 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
             actions = {
                 IconButton(onClick = { }) {
                     Image(
-                        painter = painterResource(id = R.drawable.notificacoes),
+                        painter = painterResource(id = com.example.tccbebe.R.drawable.notificacoes),
                         contentDescription = "S♥S Baby Logo",
                         modifier = Modifier
                             .size(50.dp)
@@ -639,7 +640,7 @@ fun CriarRotinaScreen(navegacao: NavHostController?) {
                 }
                 IconButton(onClick = { }) {
                     Image(
-                        painter = painterResource(id = R.drawable.perfil),
+                        painter = painterResource(id = com.example.tccbebe.R.drawable.perfil),
                         contentDescription = "S♥S Baby Logo",
                         modifier = Modifier
                             .size(50.dp)
